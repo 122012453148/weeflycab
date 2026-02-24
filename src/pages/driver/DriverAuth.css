@@ -1,0 +1,62 @@
+.driver-auth-page {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #2A9D8F, #264653);
+}
+
+.driver-auth-box {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  padding: 40px;
+  border-radius: 15px;
+  width: 350px;
+  text-align: center;
+  color: white;
+}
+
+.driver-auth-box h2 {
+  margin-bottom: 20px;
+}
+
+.driver-auth-box input {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border: none;
+  border-radius: 8px;
+  outline: none;
+}
+
+.driver-auth-box button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border: none;
+  border-radius: 8px;
+  background-color: #2A9D8F;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.driver-auth-box button:hover {
+  background-color: #21867a;
+}
+.switch-text {
+  margin-top: 15px;
+  font-size: 14px;
+  color: white;
+}
+
+.switch-text span {
+  color: #2A9D8F;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.switch-text span:hover {
+  text-decoration: underline;
+}

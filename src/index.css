@@ -1,0 +1,110 @@
+/* ---------- GLOBAL ---------- */
+body {
+  margin: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: #f5f6fa;
+  color: #1f2937;
+}
+
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 40px 20px;
+}
+
+.page-title {
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.section-title {
+  margin: 40px 0 16px;
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.text-muted {
+  color: #6b7280;
+}
+
+/* ---------- FORM ---------- */
+.form-card {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 14px;
+  margin-top: 20px;
+  display: grid;
+  gap: 14px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+}
+
+.input {
+  padding: 14px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+  font-size: 15px;
+}
+
+.input:focus {
+  outline: none;
+  border-color: #6366f1;
+}
+
+/* ---------- CAB CARDS ---------- */
+.cab-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.cab-card {
+  background: white;
+  padding: 20px;
+  border-radius: 16px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: 0.25s;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+}
+
+.cab-card:hover {
+  transform: translateY(-4px);
+}
+
+.cab-card.active {
+  border-color: #6366f1;
+  background: #eef2ff;
+}
+
+.cab-card h3 {
+  margin: 0 0 6px;
+}
+
+.cab-info {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 16px;
+  font-weight: 600;
+}
+
+/* ---------- BUTTON ---------- */
+.btn-primary {
+  background: #6366f1;
+  color: white;
+  border: none;
+  padding: 16px;
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 40px;
+}
+
+.btn-primary:hover {
+  background: #4f46e5;
+}
+
+.full-width {
+  width: 100%;
+}
+

@@ -1,0 +1,71 @@
+.profile-page {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  background: linear-gradient(
+      rgba(10, 10, 25, 0.8),
+      rgba(10, 10, 25, 0.8)
+    ),
+    url("https://images.unsplash.com/photo-1503376780353-7e6692767b70")
+      no-repeat center center/cover;
+}
+
+.profile-card {
+  width: 90%;
+  max-width: 450px;
+  padding: 35px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+
+  color: white;
+  text-align: center;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+.avatar-circle {
+  width: 90px;
+  height: 90px;
+  margin: 20px auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2A9D8F, #4cc9f0);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  font-weight: bold;
+  color: white;
+}
+
+.profile-card input {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 10px;
+  border: none;
+}
+
+.profile-card button {
+  width: 100%;
+  padding: 12px;
+  margin-top: 15px;
+  border-radius: 30px;
+  border: none;
+  background: linear-gradient(135deg, #2A9D8F, #4cc9f0);
+  color: white;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.profile-card button:hover {
+  transform: scale(1.05);
+}
+
+.saved-details p {
+  margin: 8px 0;
+}

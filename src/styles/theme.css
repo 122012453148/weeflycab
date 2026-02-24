@@ -1,0 +1,59 @@
+/* ===============================
+   GLOBAL THEME
+================================ */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background-color: #F5F6FA;
+  color: #1F2937;
+}
+
+/* ===============================
+   UTILITIES
+================================ */
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.card {
+  background: #FFFFFF;
+  border-radius: 16px;
+  padding: 20px;
+  border: 1px solid #E5E7EB;
+}
+
+.text-muted {
+  color: #9CA3AF;
+}
+
+.btn-primary {
+  background: #6C63FF;
+  color: #fff;
+  border: none;
+  padding: 12px 18px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  background: #5A54E6;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #6C63FF;
+  color: #6C63FF;
+  padding: 10px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}

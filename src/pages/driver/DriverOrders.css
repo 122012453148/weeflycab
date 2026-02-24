@@ -1,0 +1,66 @@
+.driver-orders-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+
+  background: linear-gradient(
+      rgba(10, 10, 25, 0.85),
+      rgba(10, 10, 25, 0.85)
+    ),
+    url("https://images.unsplash.com/photo-1503376780353-7e6692767b70")
+      no-repeat center center/cover;
+
+  display: flex;
+  justify-content: center;
+}
+
+.orders-container {
+  width: 90%;
+  max-width: 1000px;
+}
+
+.orders-container h2 {
+  color: #2A9D8F;
+  margin-bottom: 25px;
+}
+
+/* SUMMARY CARDS */
+.summary-cards {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.summary-card {
+  flex: 1;
+  padding: 20px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  color: white;
+
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}
+
+.summary-card h4 {
+  margin-bottom: 10px;
+  font-size: 14px;
+}
+
+.summary-card p {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+/* ORDER CARD */
+.order-card {
+  margin-bottom: 15px;
+  padding: 20px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+  color: white;
+
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+}

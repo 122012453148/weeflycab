@@ -1,0 +1,45 @@
+.navbar {
+  height: 70px;
+  width: 100%;
+  background: #f2f2f2;
+  display: flex;
+  align-items: center;
+}
+
+/* Main container */
+.navbar-inner {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  padding: 0 40px;
+}
+
+/* Logo left */
+.logo {
+  font-size: 22px;
+  font-weight: bold;
+  color: #6c63ff;
+}
+
+/* Links RIGHT side */
+.nav-links {
+  margin-left: auto;   /* 🔥 THIS PUSHES RIGHT */
+  display: flex;
+  align-items: center;
+  gap: 26px;
+}
+
+.nav-links a {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Logout button look like link */
+.nav-links button {
+  background: transparent;
+  border: none;
+  color: #333;
+  font-size: 16px;
+  cursor: pointer;
+}

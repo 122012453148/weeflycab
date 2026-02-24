@@ -1,0 +1,202 @@
+/* ===== FULL PAGE BACKGROUND ===== */
+.track-page {
+  min-height: 100vh;
+  padding: 40px 20px;
+
+  background: linear-gradient(
+      rgba(10, 10, 25, 0.75),
+      rgba(10, 10, 25, 0.75)
+    ),
+    url("https://images.unsplash.com/photo-1503376780353-7e6692767b70")
+      no-repeat center center/cover;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 30px;
+}
+
+/* ===== MAP BOX ===== */
+.track-page > div:first-child {
+  width: 90%;
+  max-width: 900px;
+  height: 350px;
+
+  border-radius: 20px;
+  overflow: hidden;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== GLASS CARD COMMON STYLE ===== */
+.ride-card,
+.driver-card {
+  width: 90%;
+  max-width: 900px;
+
+  padding: 25px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+
+  color: #ffffff;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+  transition: 0.3s ease;
+}
+
+.ride-card:hover,
+.driver-card:hover {
+  transform: translateY(-3px);
+}
+
+/* ===== HEADINGS ===== */
+.ride-card h3,
+.driver-card h4 {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+/* ===== TEXT ===== */
+.ride-card p,
+.driver-card p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #f1f1f1;
+}
+
+/* ===== AMOUNT ===== */
+.amount {
+  font-size: 22px;
+  font-weight: 600;
+  margin-top: 10px;
+}
+
+/* ===== STATUS BADGE ===== */
+.status {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 16px;
+  border-radius: 30px;
+
+  background: linear-gradient(135deg, #2A9D8F, #4cc9f0);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* ===== EMPTY STATE ===== */
+.track-empty {
+  min-height: 100vh;
+
+  background: linear-gradient(
+      rgba(10, 10, 25, 0.85),
+      rgba(10, 10, 25, 0.85)
+    ),
+    url("https://images.unsplash.com/photo-1503376780353-7e6692767b70")
+      no-repeat center center/cover;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+
+  color: white;
+}
+
+.track-empty button {
+  padding: 10px 20px;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  font-weight: 600;
+  transition: 0.3s ease;
+}
+
+.track-empty button:hover {
+  transform: scale(1.05);
+}
+/* ===== DRIVER CARD (SAME WIDTH AS RIDE CARD) ===== */
+.driver-card {
+  width: 90%;
+  max-width: 900px;
+
+  padding: 25px;
+  border-radius: 20px;
+
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(18px);
+
+  color: #ffffff;
+
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  transition: 0.3s ease;
+}
+
+.driver-card:hover {
+  transform: translateY(-3px);
+}
+
+/* LEFT SIDE TEXT */
+.driver-left h4 {
+  margin-bottom: 12px;
+}
+
+.driver-left p {
+  margin: 6px 0;
+  font-size: 14px;
+  color: #f1f1f1;
+}
+
+/* RIGHT SIDE */
+.driver-right {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+/* AVATAR CIRCLE */
+.driver-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+
+  background: linear-gradient(135deg, #2A9D8F, #4cc9f0);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  font-weight: 600;
+  color: white;
+}
+
+/* CALL BUTTON */
+.call-btn {
+  padding: 8px 18px;
+  border-radius: 25px;
+  border: none;
+
+  background: linear-gradient(135deg, #2A9D8F, #4cc9f0);
+  color: white;
+  font-weight: 600;
+  text-decoration: none;
+
+  transition: 0.3s ease;
+}
+
+.call-btn:hover {
+  transform: scale(1.05);
+}
