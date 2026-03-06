@@ -3,10 +3,11 @@ import { useNavigate } from "react-router-dom";
 import socket from "../../services/socket";
 import DriverNavbar from "../../components/DriverNavbar";
 import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 import "./DriverDashboard.css";
+import "../../styles/markers.css";
 import API from "../../services/api";
 import api from "../../services/api";
-
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
@@ -161,108 +162,103 @@ const handleCompleteRide = async () => {
   /* ================= MAP ROUTE ================= */
   const showRouteOnMap = async () => {
     const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
-    if (!activeRide) return;
+    if (!activeRide || !mapContainer.current) return;
 
-    let destination = activeRide.status === "ASSIGNED" ? activeRide.pickup : activeRide.drop;
-    
     // Get current driver location
     navigator.geolocation.getCurrentPosition(async (pos) => {
       const driverLng = pos.coords.longitude;
       const driverLat = pos.coords.latitude;
 
-      const geoPickup = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          activeRide.pickup
-        )}.json?access_token=${MAPBOX_TOKEN}`
-      ).then((res) => res.json());
+      try {
+        const geoPickup = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            activeRide.pickup
+          )}.json?access_token=${MAPBOX_TOKEN}`
+        ).then((res) => res.json());
 
-      const geoDrop = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          activeRide.drop
-        )}.json?access_token=${MAPBOX_TOKEN}`
-      ).then((res) => res.json());
+        const geoDrop = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            activeRide.drop
+          )}.json?access_token=${MAPBOX_TOKEN}`
+        ).then((res) => res.json());
 
-      if (!geoPickup.features?.length || !geoDrop.features?.length) return;
-      const [pickupLng, pickupLat] = geoPickup.features[0].center;
-      const [dropLng, dropLat] = geoDrop.features[0].center;
+        if (!geoPickup.features?.length || !geoDrop.features?.length) return;
+        const [pickupLng, pickupLat] = geoPickup.features[0].center;
+        const [dropLng, dropLat] = geoDrop.features[0].center;
 
-      const destLng = activeRide.status === "ASSIGNED" ? pickupLng : dropLng;
-      const destLat = activeRide.status === "ASSIGNED" ? pickupLat : dropLat;
+        const destLng = activeRide.status === "ASSIGNED" ? pickupLng : dropLng;
+        const destLat = activeRide.status === "ASSIGNED" ? pickupLat : dropLat;
 
-      const directions = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${destLng},${destLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
-      ).then((res) => res.json());
+        const directions = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${destLng},${destLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+        ).then((res) => res.json());
 
-      if (!directions.routes?.length) return;
-      const route = directions.routes[0].geometry;
+        if (!directions.routes?.length) return;
+        const route = directions.routes[0].geometry;
 
-      if (mapRef.current) mapRef.current.remove();
+        if (mapRef.current) mapRef.current.remove();
 
-      mapRef.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v11",
-        center: [driverLng, driverLat],
-        zoom: 12,
-      });
-
-      mapRef.current.on("load", () => {
-        mapRef.current.addSource("route", {
-          type: "geojson",
-          data: {
-            type: "Feature",
-            geometry: route,
-          },
+        mapRef.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: "mapbox://styles/mapbox/streets-v11",
+          center: [driverLng, driverLat],
+          zoom: 12,
         });
 
-        mapRef.current.addLayer({
-          id: "route",
-          type: "line",
-          source: "route",
-          paint: {
-            "line-color": "#7b61ff",
-            "line-width": 6,
-          },
+        mapRef.current.on("load", () => {
+          mapRef.current.addSource("route", {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              geometry: route,
+            },
+          });
+
+          mapRef.current.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            paint: {
+              "line-color": "#7b61ff",
+              "line-width": 6,
+            },
+          });
+
+          // Driver Marker (Car icon)
+          const carEl = document.createElement('div');
+          carEl.className = 'driver-marker-car';
+          carEl.innerHTML = '🚗';
+          carEl.style.fontSize = '32px';
+
+          new mapboxgl.Marker({ element: carEl })
+            .setLngLat([driverLng, driverLat])
+            .addTo(mapRef.current);
+
+          // Pickup Marker (Yellow)
+          const pEl = document.createElement('div');
+          pEl.className = 'custom-marker pickup-marker';
+          pEl.innerHTML = '<div class="marker-label">Pickup</div><div class="marker-pin"></div>';
+          new mapboxgl.Marker({ element: pEl, anchor: 'bottom' })
+            .setLngLat([pickupLng, pickupLat])
+            .addTo(mapRef.current);
+
+          // Drop Marker (Green)
+          const dEl = document.createElement('div');
+          dEl.className = 'custom-marker drop-marker';
+          dEl.innerHTML = '<div class="marker-label">Drop</div><div class="marker-pin"></div>';
+          new mapboxgl.Marker({ element: dEl, anchor: 'bottom' })
+            .setLngLat([dropLng, dropLat])
+            .addTo(mapRef.current);
+            
+          const bounds = new mapboxgl.LngLatBounds()
+            .extend([driverLng, driverLat])
+            .extend([pickupLng, pickupLat])
+            .extend([dropLng, dropLat]);
+          mapRef.current.fitBounds(bounds, { padding: 50 });
         });
-
-        // Driver Marker (Car icon)
-        const carEl = document.createElement('div');
-        carEl.className = 'driver-marker-car';
-        carEl.innerHTML = '🚗';
-        carEl.style.fontSize = '32px';
-
-        new mapboxgl.Marker(carEl)
-          .setLngLat([driverLng, driverLat])
-          .addTo(mapRef.current);
-
-        // Pickup Marker (Yellow)
-        const pickupEl = document.createElement('div');
-        pickupEl.className = 'custom-marker pickup-marker';
-        pickupEl.innerHTML = `
-          <div class="marker-label">Pickup</div>
-          <div class="marker-pin"></div>
-        `;
-        new mapboxgl.Marker({ element: pickupEl, anchor: 'bottom' })
-          .setLngLat([pickupLng, pickupLat])
-          .addTo(mapRef.current);
-
-        // Drop Marker (Green)
-        const dropEl = document.createElement('div');
-        dropEl.className = 'custom-marker drop-marker';
-        dropEl.innerHTML = `
-          <div class="marker-label">Drop</div>
-          <div class="marker-pin"></div>
-        `;
-        new mapboxgl.Marker({ element: dropEl, anchor: 'bottom' })
-          .setLngLat([dropLng, dropLat])
-          .addTo(mapRef.current);
-          
-        // Fit bounds
-        const bounds = new mapboxgl.LngLatBounds()
-          .extend([driverLng, driverLat])
-          .extend([pickupLng, pickupLat])
-          .extend([dropLng, dropLat]);
-        mapRef.current.fitBounds(bounds, { padding: 50 });
-      });
+      } catch (err) {
+        console.error("Map update failed:", err);
+      }
     });
   };
 
@@ -328,6 +324,18 @@ const handleCompleteRide = async () => {
               <div className="active-ride">
                 <p><strong>Status:</strong> {activeRide.status}</p>
 
+                {/* Map always visible for active rides */}
+                <div
+                  ref={mapContainer}
+                  style={{
+                    width: "100%",
+                    height: "300px",
+                    marginTop: "15px",
+                    borderRadius: "15px",
+                    border: "2px solid rgba(255,255,255,0.1)"
+                  }}
+                />
+
                 {activeRide.customerName && (
                   <div className="customer-details">
                     <p><strong>Customer:</strong> {activeRide.customerName}</p>
@@ -362,34 +370,24 @@ const handleCompleteRide = async () => {
                 )}
 
                 {activeRide.status === "ON_TRIP" && (
-                  <>
-                    <div
-                      ref={mapContainer}
-                      style={{
-                        width: "100%",
-                        height: "400px",
-                        marginTop: "20px",
-                        borderRadius: "10px",
-                      }}
-                    />
-
-                    <button
-                      className="complete-btn"
-                      onClick={handleCompleteRide}
-                      style={{
-                        marginTop: "20px",
-                        padding: "12px 20px",
-                        borderRadius: "30px",
-                        border: "none",
-                        background: "#2A9D8F",
-                        color: "white",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                      }}
-                    >
-                      ✅ Complete Ride
-                    </button>
-                  </>
+                  <button
+                    className="complete-btn"
+                    onClick={handleCompleteRide}
+                    style={{
+                      width: "100%",
+                      marginTop: "20px",
+                      padding: "14px",
+                      borderRadius: "12px",
+                      border: "none",
+                      background: "#2A9D8F",
+                      color: "white",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      fontSize: "16px"
+                    }}
+                  >
+                    ✅ Complete Ride
+                  </button>
                 )}
               </div>
             )}

@@ -1,0 +1,58 @@
+/* ========== CUSTOM MAP MARKERS ========== */
+.custom-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 100;
+  cursor: pointer;
+}
+
+.marker-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  border: 3px solid white;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+}
+
+.pickup-marker .marker-pin {
+  background: #f1c40f !important; /* Yellow */
+}
+
+.drop-marker .marker-pin {
+  background: #2ecc71 !important; /* Green */
+}
+
+.marker-label {
+  background: white !important;
+  color: black !important;
+  padding: 5px 12px !important;
+  border-radius: 20px !important;
+  font-size: 11px !important;
+  font-weight: 800 !important;
+  margin-bottom: 5px !important;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3) !important;
+  white-space: nowrap !important;
+  text-transform: uppercase !important;
+  border: 2px solid rgba(0,0,0,0.1) !important;
+  letter-spacing: 0.5px !important;
+}
+
+/* Driver Marker (Car Icon) */
+.driver-marker-car {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  cursor: pointer;
+  filter: drop-shadow(0 6px 12px rgba(0,0,0,0.4));
+  transition: all 1s linear;
+  z-index: 200 !important;
+  background: rgba(255,255,255,0.2);
+  border-radius: 50%;
+  padding: 5px;
+  backdrop-filter: blur(4px);
+  border: 2px solid rgba(255,255,255,0.3);
+}
