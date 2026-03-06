@@ -136,24 +136,96 @@
   font-size: 20px;
 }
 
-/* Cab Cards */
-.cab-card {
-  padding: 15px;
-  margin-bottom: 12px;
+/* Vehicle Selection */
+.vehicle-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.vehicle-card {
+  padding: 16px;
   border-radius: 14px;
   background: rgba(255, 255, 255, 0.08);
   cursor: pointer;
-  transition: 0.3s ease;
-  border: 1px solid transparent;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.cab-card:hover {
+.vehicle-card:hover {
   background: rgba(255, 255, 255, 0.15);
+  transform: translateX(4px);
 }
 
-.cab-card.active {
+.vehicle-card.active {
   border: 2px solid #7b61ff;
   background: rgba(123, 97, 255, 0.15);
+  box-shadow: 0 0 20px rgba(123, 97, 255, 0.2);
+}
+
+.vehicle-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vehicle-info h4 {
+  margin: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.vehicle-icon {
+  font-size: 20px;
+}
+
+.vehicle-info p {
+  margin: 0;
+  font-size: 13px;
+  opacity: 0.7;
+}
+
+.total-tag {
+  font-weight: 600;
+  color: #7b61ff;
+  font-size: 14px;
+}
+
+.chevron {
+  font-size: 12px;
+  opacity: 0.6;
+}
+
+/* Sub Options Dropdown */
+.sub-options {
+  margin-top: 8px;
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  animation: slideDown 0.3s ease;
+  border-left: 2px solid rgba(123, 97, 255, 0.3);
+  padding-left: 15px;
+}
+
+.sub-card {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.sub-card:hover {
+  transform: translateX(4px);
+}
+
+.expanded {
+  background: rgba(255, 255, 255, 0.12);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
 }
 
 /* Summary */

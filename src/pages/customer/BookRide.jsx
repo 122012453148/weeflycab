@@ -4,10 +4,19 @@ import { useNavigate } from "react-router-dom";
 import socket from "../../services/socket";
 import "./BookRide.css";
 
-const CAB_TYPES = [
-  { type: "Sedan", seats: 4, price: 12 },
-  { type: "SUV", seats: 5, price: 16 },
-  { type: "MUV", seats: 7, price: 20 },
+const VEHICLE_OPTIONS = [
+  { type: "Bike", price: 8, icon: "🏍️" },
+  { type: "Auto", price: 10, icon: "🛺" },
+  {
+    type: "Cars",
+    icon: "🚗",
+    isExpandable: true,
+    subOptions: [
+      { type: "Sedan", name: "Sedan (4 seater)", seats: 4, price: 12 },
+      { type: "SUV", name: "SUV", seats: 5, price: 16 },
+      { type: "MUV", name: "MUV", seats: 7, price: 20 },
+    ],
+  },
 ];
 
 export default function BookRide() {
@@ -17,6 +26,7 @@ export default function BookRide() {
   const [distance, setDistance] = useState(null);
   const [duration, setDuration] = useState(null);
   const [loadingDistance, setLoadingDistance] = useState(false);
+  const [carsExpanded, setCarsExpanded] = useState(false);
 
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [dropSuggestions, setDropSuggestions] = useState([]);
@@ -101,6 +111,12 @@ export default function BookRide() {
     }
 
      const user = JSON.parse(localStorage.getItem("user"));
+    if (!user || !user._id) {
+      alert("Error: User session not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     const res = await createBooking({
       userId: user._id,
       pickup,
@@ -202,24 +218,63 @@ navigate(`/cab/track/${bookingData._id}`);
             )}
           </div>
 
-          <h3>Available Cabs</h3>
+          <h3>Available Vehicles</h3>
 
           {loadingDistance && <p>Calculating distance...</p>}
 
-          <div className="cab-list">
-            {CAB_TYPES.map((cab) => (
-              <div
-                key={cab.type}
-                className={`cab-card ${
-                  selectedCab?.type === cab.type ? "active" : ""
-                }`}
-                onClick={() => setSelectedCab(cab)}
-              >
-                <h4>
-                  {cab.type} – {cab.seats} Seater
-                </h4>
-                <p>₹{cab.price} / km</p>
-                {distance && <p>Total ₹{distance * cab.price}</p>}
+          <div className="vehicle-list">
+            {VEHICLE_OPTIONS.map((option) => (
+              <div key={option.type}>
+                {option.isExpandable ? (
+                  <div className="expandable-option">
+                    <div 
+                      className={`vehicle-card ${carsExpanded ? "expanded" : ""}`}
+                      onClick={() => setCarsExpanded(!carsExpanded)}
+                    >
+                      <div className="vehicle-info">
+                        <span className="vehicle-icon">{option.icon}</span>
+                        <h4>{option.type}</h4>
+                      </div>
+                      <span className="chevron">{carsExpanded ? "▲" : "▼"}</span>
+                    </div>
+
+                    {carsExpanded && (
+                      <div className="sub-options">
+                        {option.subOptions.map((sub) => (
+                          <div
+                            key={sub.type}
+                            className={`vehicle-card sub-card ${
+                              selectedCab?.type === sub.type ? "active" : ""
+                            }`}
+                            onClick={() => setSelectedCab(sub)}
+                          >
+                            <div className="vehicle-info">
+                              <h4>{sub.name}</h4>
+                              <p>₹{sub.price} / km</p>
+                            </div>
+                            {distance && <p className="total-tag">Total ₹{distance * sub.price}</p>}
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div
+                    className={`vehicle-card ${
+                      selectedCab?.type === option.type ? "active" : ""
+                    }`}
+                    onClick={() => {
+                      setSelectedCab(option);
+                      setCarsExpanded(false);
+                    }}
+                  >
+                    <div className="vehicle-info">
+                      <span className="vehicle-icon">{option.icon}</span>
+                      <h4>{option.type} – ₹{option.price} / km</h4>
+                    </div>
+                    {distance && <p className="total-tag">Total ₹{distance * option.price}</p>}
+                  </div>
+                )}
               </div>
             ))}
           </div>
