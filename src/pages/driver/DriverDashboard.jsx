@@ -170,14 +170,24 @@ const handleCompleteRide = async () => {
       const driverLng = pos.coords.longitude;
       const driverLat = pos.coords.latitude;
 
-      const geoDest = await fetch(
+      const geoPickup = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          destination
+          activeRide.pickup
         )}.json?access_token=${MAPBOX_TOKEN}`
       ).then((res) => res.json());
 
-      if (!geoDest.features?.length) return;
-      const [destLng, destLat] = geoDest.features[0].center;
+      const geoDrop = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          activeRide.drop
+        )}.json?access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
+
+      if (!geoPickup.features?.length || !geoDrop.features?.length) return;
+      const [pickupLng, pickupLat] = geoPickup.features[0].center;
+      const [dropLng, dropLat] = geoDrop.features[0].center;
+
+      const destLng = activeRide.status === "ASSIGNED" ? pickupLng : dropLng;
+      const destLat = activeRide.status === "ASSIGNED" ? pickupLat : dropLat;
 
       const directions = await fetch(
         `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${destLng},${destLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
@@ -224,25 +234,33 @@ const handleCompleteRide = async () => {
           .setLngLat([driverLng, driverLat])
           .addTo(mapRef.current);
 
-        // Destination Marker (Yellow for Pickup, Green for Drop)
-        const destEl = document.createElement('div');
-        const label = activeRide.status === "ASSIGNED" ? "Pickup" : "Drop";
-        const theme = activeRide.status === "ASSIGNED" ? "pickup-marker" : "drop-marker";
-        
-        destEl.className = `custom-marker ${theme}`;
-        destEl.innerHTML = `
-          <div class="marker-label">${label}</div>
+        // Pickup Marker (Yellow)
+        const pickupEl = document.createElement('div');
+        pickupEl.className = 'custom-marker pickup-marker';
+        pickupEl.innerHTML = `
+          <div class="marker-label">Pickup</div>
           <div class="marker-pin"></div>
         `;
+        new mapboxgl.Marker({ element: pickupEl, anchor: 'bottom' })
+          .setLngLat([pickupLng, pickupLat])
+          .addTo(mapRef.current);
 
-        new mapboxgl.Marker({ element: destEl, anchor: 'bottom' })
-          .setLngLat([destLng, destLat])
+        // Drop Marker (Green)
+        const dropEl = document.createElement('div');
+        dropEl.className = 'custom-marker drop-marker';
+        dropEl.innerHTML = `
+          <div class="marker-label">Drop</div>
+          <div class="marker-pin"></div>
+        `;
+        new mapboxgl.Marker({ element: dropEl, anchor: 'bottom' })
+          .setLngLat([dropLng, dropLat])
           .addTo(mapRef.current);
           
         // Fit bounds
         const bounds = new mapboxgl.LngLatBounds()
           .extend([driverLng, driverLat])
-          .extend([destLng, destLat]);
+          .extend([pickupLng, pickupLat])
+          .extend([dropLng, dropLat]);
         mapRef.current.fitBounds(bounds, { padding: 50 });
       });
     });
