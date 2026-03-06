@@ -29,6 +29,8 @@ export default function RideTracking() {
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
   const [driverPos, setDriverPos] = useState(null);
+  const [showRating, setShowRating] = useState(false);
+  const [userRating, setUserRating] = useState(5);
 
 
   /* ---------------- FETCH RIDE ---------------- */
@@ -70,9 +72,7 @@ export default function RideTracking() {
   socket.on("rideCompleted", (id) => {
     if (id === bookingId) {
       setRide((prev) => ({ ...prev, status: "COMPLETED" }));
-      setTimeout(() => {
-        navigate("/");
-      }, 1500);
+      setShowRating(true); // 🔥 Show rating instead of auto-redirect
     }
   });
 
@@ -250,6 +250,15 @@ console.log("Ride data:", ride);
     loadMap();
   }, [ride?.status, driverPos]);
 
+  const handleRate = async () => {
+    try {
+      await api.post(`/bookings/${bookingId}/rate`, { rating: userRating });
+      navigate("/");
+    } catch (err) {
+      navigate("/");
+    }
+  };
+
   if (!ride) return <div className="loading">Loading ride details...</div>;
 
   return (
@@ -277,6 +286,35 @@ console.log("Ride data:", ride);
           <div className="driver-right">
             <div className="driver-avatar">{ride.driverName.charAt(0).toUpperCase()}</div>
             <a href={`tel:${ride.driverPhone}`} className="call-btn">📞 Call Driver</a>
+          </div>
+        </div>
+      )}
+
+      {/* RATING MODAL */}
+      {showRating && (
+        <div className="rating-overlay">
+          <div className="rating-modal">
+            <div className="rating-header">
+              <h3>⭐ Rate Your Trip</h3>
+              <p>How was your ride with <strong>{ride?.driverName}</strong>?</p>
+            </div>
+            
+            <div className="stars-container">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <span 
+                  key={star} 
+                  className={userRating >= star ? "star filled" : "star"}
+                  onClick={() => setUserRating(star)}
+                >
+                  ★
+                </span>
+              ))}
+            </div>
+
+            <div className="rating-actions">
+              <button className="rate-ok-btn" onClick={handleRate}>Submit Rating</button>
+              <button className="rate-later-btn" onClick={() => navigate("/")}>Maybe Later</button>
+            </div>
           </div>
         </div>
       )}

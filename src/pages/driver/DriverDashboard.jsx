@@ -22,6 +22,7 @@ export default function DriverDashboard() {
   const [activeRide, setActiveRide] = useState(null);
   const [enteredOtp, setEnteredOtp] = useState("");
   const [rideTimer, setRideTimer] = useState(null);
+  const [driverData, setDriverData] = useState(null);
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
@@ -35,8 +36,19 @@ export default function DriverDashboard() {
   useEffect(() => {
     if (!driver) {
       navigate("/driver/login");
+    } else {
+      fetchDriverStats();
     }
   }, []);
+
+  const fetchDriverStats = async () => {
+    try {
+      const res = await API.get(`/drivers/${driverId}`);
+      setDriverData(res.data);
+    } catch (err) {
+      console.log("Error fetching stats");
+    }
+  };
   
 useEffect(() => {
   if (!activeRide || (activeRide.status !== "ASSIGNED" && activeRide.status !== "ON_TRIP")) return;
@@ -285,19 +297,19 @@ const handleCompleteRide = async () => {
             <h3>📊 Performance</h3>
             <div className="stat-card">
               <span>Today's Earnings</span>
-              <strong>₹ 1,250</strong>
+              <strong>₹ {driverData?.totalEarnings || 0}</strong>
             </div>
             <div className="stat-card">
               <span>Rides Completed</span>
-              <strong>8</strong>
+              <strong>{driverData?.totalRides || 0}</strong>
             </div>
             <div className="stat-card">
               <span>Rating</span>
-              <strong>⭐ 4.9</strong>
+              <strong>⭐ {driverData?.rating || "5.0"}</strong>
             </div>
             <div className="stat-card">
               <span>Online Time</span>
-              <strong>5h 20m</strong>
+              <strong>Active Now</strong>
             </div>
           </div>
 
