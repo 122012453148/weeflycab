@@ -69,3 +69,36 @@
 .saved-details p {
   margin: 8px 0;
 }
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .profile-page {
+    padding: 30px 16px;
+    align-items: flex-start;
+  }
+
+  .profile-card {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px 20px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .profile-card {
+    padding: 22px 16px;
+    border-radius: 16px;
+  }
+
+  .avatar-circle {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+
+  .profile-card input {
+    font-size: 13px;
+    padding: 10px;
+  }
+}

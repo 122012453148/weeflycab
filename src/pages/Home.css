@@ -382,3 +382,89 @@
     max-width: 100%;
   }
 }
+/* ================= HERO MOBILE FIX ================= */
+
+.hero-section{
+  padding-top:70px; /* space for navbar */
+  height:auto;
+  min-height:100vh;
+}
+
+/* Reduce hero title size */
+
+.hero-left h1{
+  font-size:38px;
+  line-height:1.2;
+}
+
+/* Mobile adjustments */
+
+@media (max-width:768px){
+
+.hero-section{
+  padding-top:80px;
+}
+
+.hero-left h1{
+  font-size:26px;
+}
+
+.hero-left p{
+  font-size:14px;
+}
+
+.hero-content{
+  gap:30px;
+  padding:0 20px;
+}
+
+/* Services / About / Contact section titles */
+.section-title {
+  font-size:26px;
+}
+
+.services-section,
+.about-section,
+.contact-section {
+  padding: 60px 20px;
+}
+
+}
+
+/* ===== EXTRA SMALL MOBILE ===== */
+@media (max-width: 480px) {
+  .hero-left h1 {
+    font-size: 22px;
+  }
+
+  .hero-cta {
+    width: 100%;
+    text-align: center;
+  }
+
+  .section-title {
+    font-size: 22px;
+  }
+
+  .section-subtitle {
+    font-size: 14px;
+  }
+
+  .services-section,
+  .about-section,
+  .contact-section {
+    padding: 50px 16px;
+  }
+
+  .services-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .contact-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .home-card {
+    padding: 30px 20px;
+  }
+}

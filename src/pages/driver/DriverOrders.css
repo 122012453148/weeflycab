@@ -64,3 +64,45 @@
 
   box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
 }
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .driver-orders-page {
+    padding: 80px 16px 30px;
+  }
+
+  .orders-container {
+    width: 100%;
+  }
+
+  .summary-cards {
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+
+  .summary-card {
+    min-width: calc(50% - 7px);
+    flex: none;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .summary-cards {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .summary-card {
+    min-width: 100%;
+  }
+
+  .summary-card p {
+    font-size: 18px;
+  }
+
+  .order-card {
+    padding: 14px;
+    border-radius: 14px;
+  }
+}

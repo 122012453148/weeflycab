@@ -1,68 +1,166 @@
 .driver-page {
   min-height: 100vh;
-  background: url("../../assets/city.jpg") no-repeat center center/cover;
+  background: url("https://images.unsplash.com/photo-1449965072345-654a9c293647") no-repeat center center/cover;
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px;
+  padding: 80px 20px;
   position: relative;
 }
 
-/* Dark overlay */
 .driver-page::before {
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: blur(8px);
   z-index: 0;
 }
 
-/* Glass Container */
-.driver-container {
+.driver-layout {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  max-width: 1240px;
   position: relative;
   z-index: 1;
-  width: 100%;
-  max-width: 500px;
-  padding: 40px;
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.5);
-  color: #ffffff;
+  align-items: stretch;
+  justify-content: center;
 }
 
-/* Heading */
+/* Side Panels */
+.driver-side-panel {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 30px;
+  color: white;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+.driver-side-panel h3 {
+  font-size: 19px;
+  color: #2A9D8F;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 12px;
+}
+
+.stat-card {
+  background: rgba(255,255,255,0.05);
+  padding: 16px;
+  border-radius: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.stat-card strong {
+  color: #2A9D8F;
+  font-size: 17px;
+}
+
+.tips-list {
+  list-style: none;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.tips-list li {
+  font-size: 14px;
+  line-height: 1.5;
+  padding-left: 20px;
+  position: relative;
+}
+
+.tips-list li::before {
+  content: "•";
+  color: #2A9D8F;
+  position: absolute;
+  left: 0;
+  font-weight: bold;
+}
+
+/* Main Container */
+.driver-container {
+  width: 480px;
+  max-width: 100%;
+  padding: 40px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(25px);
+  box-shadow: 0 25px 60px rgba(0,0,0,0.6);
+  color: #ffffff;
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
 .driver-container h2 {
   text-align: center;
   margin-bottom: 30px;
   font-weight: 600;
   color: #2A9D8F;
+  letter-spacing: 0.5px;
 }
 
-/* Order Card */
+/* Searching Animation */
+.searching-box {
+  text-align: center;
+  padding: 40px 0;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid rgba(255,255,255,0.1);
+  border-top-color: #2A9D8F;
+  border-radius: 50%;
+  margin: 0 auto 15px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Card Styling */
 .order-card {
-  background: rgba(255, 255, 255, 0.12);
-  padding: 20px;
-  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 22px;
+  border-radius: 16px;
   margin-bottom: 20px;
+  border: 1px solid rgba(255,255,255,0.05);
+  transition: 0.3s;
+}
+
+.order-card:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateY(-2px);
 }
 
 .order-card p {
-  margin: 6px 0;
-  color: #f1f1f1;
+  margin: 8px 0;
+  color: #e0e0e0;
 }
 
 .amount {
-  font-weight: bold;
+  font-size: 20px;
+  font-weight: 700;
   color: #2A9D8F;
+  margin-top: 10px !important;
 }
 
 /* Buttons */
 .driver-btn {
-  margin-top: 10px;
-  padding: 10px 18px;
-  border-radius: 8px;
+  width: 100%;
+  margin-top: 15px;
+  padding: 12px;
+  border-radius: 10px;
   border: none;
   background: #2A9D8F;
   color: white;
@@ -73,61 +171,102 @@
 
 .driver-btn:hover {
   background: #21867a;
+  box-shadow: 0 8px 20px rgba(42, 157, 143, 0.3);
 }
 
 .active-ride {
-  margin-top: 20px;
+  margin-top: 10px;
+  padding: 24px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* OTP Section */
+.otp-section {
+  margin-top: 25px;
   padding: 20px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(42, 157, 143, 0.1);
+  border-radius: 15px;
+  border: 1px solid rgba(42, 157, 143, 0.3);
+  text-align: center;
 }
 
-.driver-map {
-  width: 100%;
-  height: 350px;
-  border-radius: 12px;
-  margin-bottom: 20px;
-}
-
-.otp-box {
-  background: rgba(255,255,255,0.1);
-  backdrop-filter: blur(10px);
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 15px;
-}
-
-.otp-box input {
-  width: 100%;
-  padding: 10px;
-  border-radius: 8px;
-  border: none;
-  margin-bottom: 10px;
-}
-
-.driver-btn {
-  background: #2A9D8F;
-  color: white;
-  border: none;
-  padding: 10px 18px;
-  border-radius: 8px;
-  cursor: pointer;
+.otp-label {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 12px;
 }
 
 .otp-input {
-  width: 100%;
-  padding: 10px;
-  margin-bottom: 10px;
+  width: 120px;
+  display: block;
+  margin: 0 auto 15px;
+  padding: 12px;
+  font-size: 20px;
+  letter-spacing: 5px;
+  font-weight: bold;
+  background: rgba(255,255,255,0.1);
+  color: white;
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 8px;
-  border: none;
-  outline: none;
   text-align: center;
 }
-.customer-details {
-  margin-top: 10px;
+
+.verify-btn {
+  background: #2A9D8F;
+  margin-top: 0 !important;
 }
 
+/* Call Button Refinement */
 .call-btn {
-  margin-top: 10px;
-  display: inline-block;
+  width: auto !important;
+  display: inline-flex !important;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  margin-top: 10px !important;
+}
+
+/* ===== TABLET & MOBILE ===== */
+@media (max-width: 1100px) {
+  .driver-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 40px;
+  }
+
+  .driver-side-panel {
+    width: 100%;
+    max-width: 480px;
+    order: 2; /* Put side panels below the main dashboard */
+  }
+
+  .driver-container {
+    width: 100%;
+    max-width: 480px;
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .driver-page {
+    padding: 80px 16px 40px;
+  }
+
+  .driver-container {
+    padding: 30px 20px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .driver-container h2 {
+    font-size: 20px;
+  }
+
+  .order-card {
+    padding: 18px;
+  }
 }

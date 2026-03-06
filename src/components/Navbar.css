@@ -4,29 +4,42 @@
   background: #f2f2f2;
   display: flex;
   align-items: center;
+  position: relative;
+  z-index: 1000;          /* keep navbar above page content */
+  overflow: visible;      /* allow dropdown to extend below 70px height */
 }
 
-/* Main container */
 .navbar-inner {
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 0 40px;
+  padding: 0 20px;
+  position: relative;     /* needed so absolute dropdown is relative to this */
 }
 
-/* Logo left */
 .logo {
   font-size: 22px;
   font-weight: bold;
   color: #6c63ff;
 }
 
-/* Links RIGHT side */
+/* hamburger — hidden on desktop */
+.menu-toggle {
+  display: none;
+  margin-left: auto;
+  font-size: 28px;
+  cursor: pointer;
+  color: #6c63ff;
+  line-height: 1;
+  user-select: none;
+}
+
+/* desktop links */
 .nav-links {
-  margin-left: auto;   /* 🔥 THIS PUSHES RIGHT */
+  margin-left: auto;
   display: flex;
-  align-items: center;
   gap: 26px;
+  align-items: center;
 }
 
 .nav-links a {
@@ -35,11 +48,47 @@
   font-weight: 500;
 }
 
-/* Logout button look like link */
 .nav-links button {
-  background: transparent;
+  background: none;
   border: none;
-  color: #333;
-  font-size: 16px;
   cursor: pointer;
+  font-size: 15px;
+  font-weight: 500;
+  color: #333;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+
+  .menu-toggle {
+    display: block;
+  }
+
+  /* Collapsed state */
+  .nav-links {
+    position: absolute;
+    top: 70px;
+    right: 0;
+    width: 220px;
+    background: #f2f2f2;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px;
+    gap: 18px;
+    display: none;                          /* hidden by default */
+    z-index: 999;                           /* float above page content */
+    box-shadow: -4px 8px 20px rgba(0,0,0,0.12);
+    border-radius: 0 0 12px 12px;
+  }
+
+  /* Open state */
+  .nav-links.active {
+    display: flex;
+  }
+
+  .nav-links a,
+  .nav-links button {
+    font-size: 15px;
+    width: 100%;
+  }
 }

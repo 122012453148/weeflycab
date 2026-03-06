@@ -1,43 +1,47 @@
 import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
 import "./Navbar.css";
 
 export default function Navbar() {
 
   const navigate = useNavigate();
+  const [menuOpen, setMenuOpen] = useState(false);
 
   const handleLogout = () => {
-    localStorage.removeItem("user");   // customer login data
-    localStorage.removeItem("driver"); // driver login data (if any)
+    localStorage.removeItem("user");
+    localStorage.removeItem("driver");
+    navigate("/login");
+  };
 
-    navigate("/login");  // login page route
+  const toggleMenu = () => {
+    setMenuOpen(!menuOpen);
   };
 
   return (
     <nav className="navbar">
       <div className="navbar-inner">
+
         <h2 className="logo">Weefly</h2>
 
-        <div className="nav-links">
-          <Link to="/">Home</Link>
-          <Link to="/cab/book">Book Ride</Link>
-          <Link to="/cab/track">Track</Link>
-<a href="#services">Services</a>
-<a href="#about">About</a>
-<a href="#contact">Contact</a>
-          <button
-            onClick={handleLogout}
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "inherit",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            Logout
-          </button>
+        {/* Hamburger */}
+        <div className="menu-toggle" onClick={toggleMenu}>
+          ☰
+        </div>
+
+        <div className={menuOpen ? "nav-links active" : "nav-links"}>
+
+          <Link to="/" onClick={()=>setMenuOpen(false)}>Home</Link>
+          <Link to="/cab/book" onClick={()=>setMenuOpen(false)}>Book Ride</Link>
+          <Link to="/cab/track" onClick={()=>setMenuOpen(false)}>Track</Link>
+
+          <a href="#services" onClick={()=>setMenuOpen(false)}>Services</a>
+          <a href="#about" onClick={()=>setMenuOpen(false)}>About</a>
+          <a href="#contact" onClick={()=>setMenuOpen(false)}>Contact</a>
+
+          <button onClick={handleLogout}>Logout</button>
 
         </div>
+
       </div>
     </nav>
   );

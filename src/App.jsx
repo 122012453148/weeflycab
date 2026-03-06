@@ -17,6 +17,9 @@ import UsersList from "./pages/admin/UsersList";
 import DriversList from "./pages/admin/DriversList";
 import BookingsList from "./pages/admin/BookingsList";
 import DriverPayment from "./pages/driver/DriverPayment";
+import Earnings from "./pages/admin/Earnings";
+import VehicleTypes from "./pages/admin/VehicleTypes";
+import Reports from "./pages/admin/Reports";
 
 
 
@@ -67,6 +70,9 @@ function App() {
 <Route path="/admin/users" element={<UsersList />} />
 <Route path="/admin/drivers" element={<DriversList />} />
 <Route path="/admin/bookings" element={<BookingsList />} />
+<Route path="/admin/earnings" element={<Earnings />} />
+<Route path="/admin/vehicles" element={<VehicleTypes />} />
+<Route path="/admin/reports" element={<Reports />} />
 <Route path="/driver/payment" element={<DriverPayment />} />
  
 

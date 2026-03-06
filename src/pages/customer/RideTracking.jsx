@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import mapboxgl from "mapbox-gl";
 import api from "../../services/api";
 import socket from "../../services/socket";
@@ -10,6 +10,7 @@ mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 
 export default function RideTracking() {
+  const navigate = useNavigate();
   const { bookingId } = useParams();
   const [ride, setRide] = useState(null);
 
@@ -57,6 +58,9 @@ export default function RideTracking() {
   socket.on("rideCompleted", (id) => {
     if (id === bookingId) {
       setRide((prev) => ({ ...prev, status: "COMPLETED" }));
+      setTimeout(() => {
+        navigate("/");
+      }, 1500);
     }
   });
 

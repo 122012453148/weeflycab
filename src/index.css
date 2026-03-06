@@ -1,3 +1,8 @@
+/* ===== BOX-SIZING RESET (critical for responsive layouts) ===== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
 /* ---------- GLOBAL ---------- */
 body {
   margin: 0;
@@ -8,6 +13,7 @@ body {
 
 .container {
   max-width: 900px;
+  width: 100%;
   margin: auto;
   padding: 40px 20px;
 }
@@ -108,3 +114,43 @@ body {
   width: 100%;
 }
 
+/* ---------- MOBILE RESPONSIVE ---------- */
+
+@media (max-width: 768px) {
+
+  .container {
+    padding: 20px 15px;
+  }
+
+  .page-title {
+    font-size: 24px;
+  }
+
+  .section-title {
+    font-size: 18px;
+  }
+
+  .cab-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .cab-card {
+    padding: 16px;
+  }
+
+  .cab-info {
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .btn-primary {
+    margin-top: 20px;
+    padding: 14px;
+    font-size: 15px;
+  }
+
+  .feature-item {
+    width: 100%;
+  }
+
+}

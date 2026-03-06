@@ -27,6 +27,7 @@
 .auth-card {
   position: relative;   /* must be relative for overlay */
   width: 400px;
+  max-width: 95vw;
   padding: 40px;
   border-radius: 20px;
   backdrop-filter: blur(15px);
@@ -114,5 +115,30 @@ body {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .auth-card {
+    width: 90%;
+    padding: 30px 24px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .auth-card {
+    width: 94%;
+    padding: 24px 18px;
+    border-radius: 16px;
+  }
+
+  .auth-card h2 {
+    font-size: 20px;
+  }
+
+  .auth-card input {
+    font-size: 13px;
   }
 }

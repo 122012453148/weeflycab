@@ -125,94 +125,138 @@ navigate(`/cab/track/${bookingData._id}`);
 
   return (
     <div className="book-page">
-      <div className="book-container">
-        <h2>🚕 Book a Ride</h2>
-
-        {/* Pickup */}
-        <div className="input-box">
-          <input
-            ref={pickupRef}
-            placeholder="Pickup location"
-            value={pickup}
-            onChange={(e) => handlePickupSearch(e.target.value)}
-          />
-
-          {pickupSuggestions.length > 0 && (
-            <ul className="suggestions">
-              {pickupSuggestions.map((place) => (
-                <li
-                  key={place.id}
-                  onClick={() => {
-                    setPickup(place.place_name);
-                    setPickupSuggestions([]);
-                  }}
-                >
-                  {place.place_name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        {/* Drop */}
-        <div className="input-box">
-          <input
-            ref={dropRef}
-            placeholder="Drop location"
-            value={drop}
-            onChange={(e) => handleDropSearch(e.target.value)}
-          />
-
-          {dropSuggestions.length > 0 && (
-            <ul className="suggestions">
-              {dropSuggestions.map((place) => (
-                <li
-                  key={place.id}
-                  onClick={() => {
-                    setDrop(place.place_name);
-                    setDropSuggestions([]);
-                  }}
-                >
-                  {place.place_name}
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-
-        <h3>Available Cabs</h3>
-
-        {loadingDistance && <p>Calculating distance...</p>}
-
-        <div className="cab-list">
-          {CAB_TYPES.map((cab) => (
-            <div
-              key={cab.type}
-              className={`cab-card ${
-                selectedCab?.type === cab.type ? "active" : ""
-              }`}
-              onClick={() => setSelectedCab(cab)}
-            >
-              <h4>
-                {cab.type} – {cab.seats} Seater
-              </h4>
-              <p>₹{cab.price} / km</p>
-              {distance && <p>Total ₹{distance * cab.price}</p>}
-            </div>
-          ))}
-        </div>
-
-        {distance && selectedCab && (
-          <div className="summary">
-            <p>Distance: {distance} km</p>
-            <p>ETA: {duration} mins</p>
-            <p>Total Amount: ₹{totalAmount}</p>
-
-            <button className="confirm-btn" onClick={handleBook}>
-              Confirm Booking
-            </button>
+      <div className="book-layout">
+        {/* Left Side Panel - Info/Features */}
+        <div className="side-panel">
+          <h3>🛡️ Your Safety First</h3>
+          <div className="info-item">
+            <span className="info-icon">📍</span>
+            <p>Live tracking for every ride you book.</p>
           </div>
-        )}
+          <div className="info-item">
+            <span className="info-icon">🆔</span>
+            <p>Verified drivers with background checks.</p>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">📞</span>
+            <p>24/7 SOS support for emergency assistance.</p>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">📱</span>
+            <p>Share trip details with family and friends.</p>
+          </div>
+        </div>
+
+        <div className="book-container">
+          <h2>🚕 Book a Ride</h2>
+
+          {/* Pickup */}
+          <div className="input-box">
+            <input
+              ref={pickupRef}
+              placeholder="Pickup location"
+              value={pickup}
+              onChange={(e) => handlePickupSearch(e.target.value)}
+            />
+
+            {pickupSuggestions.length > 0 && (
+              <ul className="suggestions">
+                {pickupSuggestions.map((place) => (
+                  <li
+                    key={place.id}
+                    onClick={() => {
+                      setPickup(place.place_name);
+                      setPickupSuggestions([]);
+                    }}
+                  >
+                    {place.place_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          {/* Drop */}
+          <div className="input-box">
+            <input
+              ref={dropRef}
+              placeholder="Drop location"
+              value={drop}
+              onChange={(e) => handleDropSearch(e.target.value)}
+            />
+
+            {dropSuggestions.length > 0 && (
+              <ul className="suggestions">
+                {dropSuggestions.map((place) => (
+                  <li
+                    key={place.id}
+                    onClick={() => {
+                      setDrop(place.place_name);
+                      setDropSuggestions([]);
+                    }}
+                  >
+                    {place.place_name}
+                  </li>
+                ))}
+              </ul>
+            )}
+          </div>
+
+          <h3>Available Cabs</h3>
+
+          {loadingDistance && <p>Calculating distance...</p>}
+
+          <div className="cab-list">
+            {CAB_TYPES.map((cab) => (
+              <div
+                key={cab.type}
+                className={`cab-card ${
+                  selectedCab?.type === cab.type ? "active" : ""
+                }`}
+                onClick={() => setSelectedCab(cab)}
+              >
+                <h4>
+                  {cab.type} – {cab.seats} Seater
+                </h4>
+                <p>₹{cab.price} / km</p>
+                {distance && <p>Total ₹{distance * cab.price}</p>}
+              </div>
+            ))}
+          </div>
+
+          {distance && selectedCab && (
+            <div className="summary">
+              <p>Distance: {distance} km</p>
+              <p>ETA: {duration} mins</p>
+              <p>Total Amount: ₹{totalAmount}</p>
+
+              <button className="confirm-btn" onClick={handleBook}>
+                Confirm Booking
+              </button>
+            </div>
+          )}
+        </div>
+
+        {/* Right Side Panel - Offers/Promos */}
+        <div className="side-panel">
+          <h3>🎁 Special Offers</h3>
+          <div className="info-item">
+            <span className="info-icon">💰</span>
+            <p>Get 20% OFF on your first 3 rides! Code: <b>FIRST20</b></p>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">🥤</span>
+            <p>Complimentary water and snacks on Premium rides.</p>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">⭐</span>
+            <p>Earn loyalty points for every kilometer you travel.</p>
+          </div>
+          <div className="info-item">
+            <span className="info-icon">🏙️</span>
+            <p>Intercity packages starting from just ₹2500.</p>
+          </div>
+        </div>
       </div>
     </div>
   );

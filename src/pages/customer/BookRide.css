@@ -5,7 +5,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  padding: 40px 20px;
+  padding: 80px 20px;
   position: relative;
 }
 
@@ -13,12 +13,25 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+}
+
+.book-layout {
+  display: flex;
+  gap: 30px;
+  width: 100%;
+  max-width: 1200px;
+  position: relative;
+  z-index: 1;
+  justify-content: center;
+  align-items: stretch;
 }
 
 .book-container {
   position: relative;
   width: 420px;
+  max-width: 95vw;
   background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(18px);
   padding: 30px;
@@ -41,12 +54,86 @@
 
 .input-box input {
   width: 100%;
-  padding: 12px 14px;
-  border-radius: 10px;
-  border: none;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   outline: none;
+  font-size: 15px;
+  background: rgba(255, 255, 255, 0.95);
+  color: #333;
+  transition: 0.3s;
+}
+
+.input-box input:focus {
+  background: #fff;
+  box-shadow: 0 0 0 4px rgba(108, 99, 255, 0.2);
+}
+
+/* Dropdown Suggestions */
+.suggestions {
+  list-style: none;
+  margin: 5px 0 0;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.98);
+  border-radius: 12px;
+  position: absolute;
+  width: 100%;
+  z-index: 100;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  border: 1px solid rgba(255,255,255,0.2);
+  max-height: 200px;
+  overflow-y: auto;
+  animation: slideDown 0.3s ease;
+}
+
+.suggestions li {
+  padding: 12px 14px;
+  cursor: pointer;
+  border-radius: 8px;
+  color: #333;
   font-size: 14px;
-  background: rgba(255, 255, 255, 0.9);
+  transition: 0.2s;
+}
+
+.suggestions li:hover {
+  background: rgba(108, 99, 255, 0.1);
+  color: #6c63ff;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Side Panels */
+.side-panel {
+  flex: 1;
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(15px);
+  border-radius: 20px;
+  padding: 24px;
+  color: white;
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.side-panel h3 {
+  font-size: 18px;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
+  padding-bottom: 10px;
+}
+
+.info-item {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px;
+}
+
+.info-icon {
+  font-size: 20px;
 }
 
 /* Cab Cards */
@@ -99,4 +186,60 @@
 .confirm-btn:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 20px rgba(123, 97, 255, 0.4);
+}
+
+/* ===== TABLET & MOBILE ===== */
+@media (max-width: 1024px) {
+  .book-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    padding-bottom: 40px;
+  }
+
+  .side-panel {
+    width: 100%;
+    max-width: 500px;
+    order: 2; /* Put side panels below the main booking container */
+  }
+
+  .book-container {
+    width: 500px;
+    max-width: 100%;
+    order: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .book-container {
+    width: 90%;
+    padding: 24px 20px;
+  }
+
+  .book-page {
+    padding: 80px 16px 40px;
+    align-items: flex-start;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .book-container {
+    width: 95%;
+    padding: 20px 16px;
+    border-radius: 16px;
+  }
+
+  .book-container h2 {
+    font-size: 18px;
+  }
+
+  .input-box input {
+    font-size: 13px;
+    padding: 10px 12px;
+  }
+
+  .cab-card {
+    padding: 12px;
+  }
 }

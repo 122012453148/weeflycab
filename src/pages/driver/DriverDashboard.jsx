@@ -214,93 +214,135 @@ const handleCompleteRide = async () => {
       <DriverNavbar />
 
       <div className="driver-page">
-        <div className="driver-container">
-          <h2>🚕 Driver Dashboard</h2>
-
-          {availableRides.map((ride) => (
-            <div key={ride._id} className="order-card">
-              <p><strong>Pickup:</strong> {ride.pickup}</p>
-              <p><strong>Drop:</strong> {ride.drop}</p>
-              <p className="amount">₹ {ride.amount}</p>
-
-              <button
-                className="driver-btn"
-                onClick={() => handleAccept(ride)}
-              >
-                Accept
-              </button>
+        <div className="driver-layout">
+          {/* Left Panel: Stats */}
+          <div className="driver-side-panel">
+            <h3>📊 Performance</h3>
+            <div className="stat-card">
+              <span>Today's Earnings</span>
+              <strong>₹ 1,250</strong>
             </div>
-          ))}
-
-          {activeRide && (
-            <div className="active-ride">
-              <p><strong>Status:</strong> {activeRide.status}</p>
-
-              {activeRide.customerName && (
-                <div className="customer-details">
-                  <p><strong>Customer:</strong> {activeRide.customerName}</p>
-                  <p><strong>Phone:</strong> {activeRide.customerPhone}</p>
-
-                  <a
-                    href={`tel:${activeRide.customerPhone}`}
-                    className="driver-btn call-btn"
-                  >
-                    📞 Call Customer
-                  </a>
-                </div>
-              )}
-
-              {activeRide.status === "ASSIGNED" && (
-                <>
-                  <input
-                    type="text"
-                    value={enteredOtp}
-                    onChange={(e) => setEnteredOtp(e.target.value)}
-                    placeholder="Enter OTP"
-                    className="otp-input"
-                  />
-                  <button
-                    className="driver-btn"
-                    onClick={handleVerifyOtp}
-                  >
-                    Verify OTP
-                  </button>
-                </>
-              )}
-
-              {activeRide.status === "ON_TRIP" && (
-  <>
-    <div
-      ref={mapContainer}
-      style={{
-        width: "100%",
-        height: "400px",
-        marginTop: "20px",
-        borderRadius: "10px",
-      }}
-    />
-
-    <button
-      className="complete-btn"
-      onClick={handleCompleteRide}
-      style={{
-        marginTop: "20px",
-        padding: "12px 20px",
-        borderRadius: "30px",
-        border: "none",
-        background: "#2A9D8F",
-        color: "white",
-        fontWeight: "600",
-        cursor: "pointer",
-      }}
-    >
-      ✅ Complete Ride
-    </button>
-  </>
-)}
-
+            <div className="stat-card">
+              <span>Rides Completed</span>
+              <strong>8</strong>
             </div>
-          )}
+            <div className="stat-card">
+              <span>Rating</span>
+              <strong>⭐ 4.9</strong>
+            </div>
+            <div className="stat-card">
+              <span>Online Time</span>
+              <strong>5h 20m</strong>
+            </div>
+          </div>
+
+          <div className="driver-container">
+            <h2>🚕 Driver Dashboard</h2>
+
+            {availableRides.length === 0 && !activeRide && (
+              <div className="searching-box">
+                <div className="spinner"></div>
+                <p>Searching for nearby rides...</p>
+              </div>
+            )}
+
+            {availableRides.map((ride) => (
+              <div key={ride._id} className="order-card">
+                <p><strong>Pickup:</strong> {ride.pickup}</p>
+                <p><strong>Drop:</strong> {ride.drop}</p>
+                <p className="amount">₹ {ride.amount}</p>
+
+                <button
+                  className="driver-btn"
+                  onClick={() => handleAccept(ride)}
+                >
+                  Accept
+                </button>
+              </div>
+            ))}
+
+            {activeRide && (
+              <div className="active-ride">
+                <p><strong>Status:</strong> {activeRide.status}</p>
+
+                {activeRide.customerName && (
+                  <div className="customer-details">
+                    <p><strong>Customer:</strong> {activeRide.customerName}</p>
+                    <p><strong>Phone:</strong> {activeRide.customerPhone}</p>
+
+                    <a
+                      href={`tel:${activeRide.customerPhone}`}
+                      className="driver-btn call-btn"
+                    >
+                      📞 Call Customer
+                    </a>
+                  </div>
+                )}
+
+                {activeRide.status === "ASSIGNED" && (
+                  <div className="otp-section">
+                    <p className="otp-label">Enter the OTP provided by the customer to start the ride:</p>
+                    <input
+                      type="text"
+                      value={enteredOtp}
+                      onChange={(e) => setEnteredOtp(e.target.value)}
+                      placeholder="0000"
+                      className="otp-input"
+                    />
+                    <button
+                      className="driver-btn verify-btn"
+                      onClick={handleVerifyOtp}
+                    >
+                      Verify & Start Trip
+                    </button>
+                  </div>
+                )}
+
+                {activeRide.status === "ON_TRIP" && (
+                  <>
+                    <div
+                      ref={mapContainer}
+                      style={{
+                        width: "100%",
+                        height: "400px",
+                        marginTop: "20px",
+                        borderRadius: "10px",
+                      }}
+                    />
+
+                    <button
+                      className="complete-btn"
+                      onClick={handleCompleteRide}
+                      style={{
+                        marginTop: "20px",
+                        padding: "12px 20px",
+                        borderRadius: "30px",
+                        border: "none",
+                        background: "#2A9D8F",
+                        color: "white",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                      }}
+                    >
+                      ✅ Complete Ride
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Right Panel: Tips */}
+          <div className="driver-side-panel">
+            <h3>🛡️ Safety & Tips</h3>
+            <ul className="tips-list">
+              <li>Keep your vehicle clean for better ratings.</li>
+              <li>Always verify OTP before starting the trip.</li>
+              <li>Follow traffic rules and avoid speeding.</li>
+              <li>Greet customers politely for a 5-star experience.</li>
+              <li>Take regular breaks to stay fresh and alert.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </>

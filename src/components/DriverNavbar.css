@@ -74,32 +74,80 @@
 
 /* Hover effect */
 .driver-nav-right button:hover {
-  color: #2A9D8F;
+  opacity: 0.8;
 }
 
 /* Logout special button */
 .logout-btn {
-  padding: 6px 16px;
+  padding: 6px 20px;
   border-radius: 20px;
-  background: white;
+  background: white !important;
   color: #2A9D8F !important;
   font-weight: 600;
 }
 
 .logout-btn:hover {
-  background: #f2f2f2;
-}
-.driver-navbar {
-  width: 100%;
-  padding: 15px 40px;
-  background: #2A9D8F;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+  background: #f2f2f2 !important;
+  opacity: 1 !important;
 }
 
-.driver-nav-left {
-  font-size: 20px;
-  font-weight: 600;
+/* ===== DRIVER NAV HAMBURGER (hidden by default) ===== */
+.driver-menu-toggle {
+  display: none;
+  background: none;
+  border: none;
   color: white;
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .driver-navbar {
+    padding: 0 20px;
+  }
+
+  .driver-nav-right {
+    gap: 15px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .driver-menu-toggle {
+    display: block;
+  }
+
+  .driver-nav-right {
+    position: fixed;
+    top: 70px;
+    left: 0;
+    width: 100%;
+    background: #2A9D8F;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+    transform: translateY(-150%);
+    transition: 0.4s ease;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    z-index: 999;
+  }
+
+  .driver-nav-right.active {
+    transform: translateY(0);
+  }
+
+  .driver-nav-right button {
+    width: 100%;
+    text-align: left;
+    padding: 10px 0;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+  }
+
+  .logout-btn {
+    text-align: center !important;
+    margin-top: 10px;
+  }
 }

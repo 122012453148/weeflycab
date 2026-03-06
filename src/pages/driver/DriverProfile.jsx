@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
+import API from "../../services/api";
 import "./DriverProfile.css";
 
 export default function DriverProfile() {
@@ -35,8 +36,8 @@ export default function DriverProfile() {
   };
 
   const handleSave = async () => {
-    const res = await axios.put(
-      `http://localhost:5000/api/drivers/${driverId}/profile`,
+    const res = await API.put(
+      `/drivers/${driverId}/profile`,
       form
     );
 

@@ -200,3 +200,69 @@
 .call-btn:hover {
   transform: scale(1.05);
 }
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .track-page {
+    padding: 24px 12px;
+    gap: 20px;
+  }
+
+  .track-page > div:first-child {
+    width: 100%;
+    height: 280px;
+  }
+
+  .ride-card,
+  .driver-card {
+    width: 100%;
+    padding: 20px 16px;
+  }
+
+  .driver-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .driver-right {
+    width: 100%;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .amount {
+    font-size: 18px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .track-page > div:first-child {
+    height: 220px;
+    border-radius: 14px;
+  }
+
+  .ride-card h3,
+  .driver-card h4 {
+    font-size: 15px;
+  }
+
+  .ride-card p,
+  .driver-card p,
+  .driver-left p {
+    font-size: 13px;
+  }
+
+  .driver-avatar {
+    width: 50px;
+    height: 50px;
+    font-size: 18px;
+  }
+
+  .track-empty button {
+    padding: 10px 24px;
+    font-size: 14px;
+  }
+}

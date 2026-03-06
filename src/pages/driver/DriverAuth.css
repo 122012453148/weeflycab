@@ -12,6 +12,7 @@
   padding: 40px;
   border-radius: 15px;
   width: 350px;
+  max-width: 94vw;
   text-align: center;
   color: white;
 }
@@ -59,4 +60,29 @@
 
 .switch-text span:hover {
   text-decoration: underline;
+}
+
+/* ===== TABLET ===== */
+@media (max-width: 768px) {
+  .driver-auth-box {
+    width: 90%;
+    padding: 32px 24px;
+  }
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 480px) {
+  .driver-auth-page {
+    padding: 20px;
+  }
+
+  .driver-auth-box {
+    width: 95%;
+    padding: 24px 18px;
+    border-radius: 12px;
+  }
+
+  .driver-auth-box h2 {
+    font-size: 20px;
+  }
 }
