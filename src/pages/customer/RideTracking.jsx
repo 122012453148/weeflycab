@@ -214,11 +214,27 @@ console.log("Ride data:", ride);
           });
         }
 
-        const m1 = new mapboxgl.Marker({ color: "green" })
+        // Custom Pickup Marker (Yellow)
+        const pickupEl = document.createElement('div');
+        pickupEl.className = 'custom-marker pickup-marker';
+        pickupEl.innerHTML = `
+          <div class="marker-label">Pickup</div>
+          <div class="marker-pin"></div>
+        `;
+        
+        const m1 = new mapboxgl.Marker({ element: pickupEl, anchor: 'bottom' })
           .setLngLat(pickupCoords)
           .addTo(map);
 
-        const m2 = new mapboxgl.Marker({ color: "red" })
+        // Custom Drop Marker (Green)
+        const dropEl = document.createElement('div');
+        dropEl.className = 'custom-marker drop-marker';
+        dropEl.innerHTML = `
+          <div class="marker-label">Drop</div>
+          <div class="marker-pin"></div>
+        `;
+
+        const m2 = new mapboxgl.Marker({ element: dropEl, anchor: 'bottom' })
           .setLngLat(dropCoords)
           .addTo(map);
           

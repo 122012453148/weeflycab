@@ -215,16 +215,27 @@ const handleCompleteRide = async () => {
         });
 
         // Driver Marker (Car icon)
-        const el = document.createElement('div');
-        el.className = 'driver-marker-car';
-        el.innerHTML = '🚗';
-        el.style.fontSize = '24px';
+        const carEl = document.createElement('div');
+        carEl.className = 'driver-marker-car';
+        carEl.innerHTML = '🚗';
+        carEl.style.fontSize = '32px';
 
-        new mapboxgl.Marker(el)
+        new mapboxgl.Marker(carEl)
           .setLngLat([driverLng, driverLat])
           .addTo(mapRef.current);
 
-        new mapboxgl.Marker({ color: activeRide.status === "ASSIGNED" ? "green" : "red" })
+        // Destination Marker (Yellow for Pickup, Green for Drop)
+        const destEl = document.createElement('div');
+        const label = activeRide.status === "ASSIGNED" ? "Pickup" : "Drop";
+        const theme = activeRide.status === "ASSIGNED" ? "pickup-marker" : "drop-marker";
+        
+        destEl.className = `custom-marker ${theme}`;
+        destEl.innerHTML = `
+          <div class="marker-label">${label}</div>
+          <div class="marker-pin"></div>
+        `;
+
+        new mapboxgl.Marker({ element: destEl, anchor: 'bottom' })
           .setLngLat([destLng, destLat])
           .addTo(mapRef.current);
           
