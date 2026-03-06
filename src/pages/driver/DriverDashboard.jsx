@@ -208,9 +208,14 @@ const handleCompleteRide = async () => {
 
         mapRef.current = new mapboxgl.Map({
           container: mapContainer.current,
-          style: "mapbox://styles/mapbox/streets-v11",
+          style: "mapbox://styles/mapbox/streets-v12",
           center: [driverLng, driverLat],
           zoom: 12,
+        });
+
+        // Suppress missing image warnings (e.g. for road shields)
+        mapRef.current.on('styleimagemissing', (e) => {
+          console.warn(`Mapbox missing image: ${e.id}. Suppressing.`);
         });
 
         mapRef.current.on("load", () => {

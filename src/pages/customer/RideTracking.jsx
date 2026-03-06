@@ -165,13 +165,15 @@ console.log("Ride data:", ride);
 
       const routeCoords = routeData.routes[0].geometry.coordinates;
 
-      if (!mapRef.current) {
         mapRef.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: "mapbox://styles/mapbox/streets-v12",
           center: pickupCoords,
           zoom: 12,
         });
+
+        // Suppress missing image warnings
+        mapRef.current.on('styleimagemissing', () => {});
       }
 
       const map = mapRef.current;
