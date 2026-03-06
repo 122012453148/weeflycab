@@ -128,6 +128,7 @@ console.log("Ride data:", ride);
   }, [ride?.status]);
 
   /* ---------------- MAP ---------------- */
+  /* ---------------- MAP ---------------- */
   useEffect(() => {
     if (!ride || !mapContainer.current) return;
 
@@ -136,128 +137,120 @@ console.log("Ride data:", ride);
       markersRef.current.forEach(m => m.remove());
       markersRef.current = [];
 
-      const pickupGeo = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          ride.pickup
-        )}.json?access_token=${mapboxgl.accessToken}`
-      ).then((res) => res.json());
+      try {
+        const pickupGeo = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            ride.pickup
+          )}.json?access_token=${mapboxgl.accessToken}`
+        ).then((res) => res.json());
 
-      const dropGeo = await fetch(
-        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-          ride.drop
-        )}.json?access_token=${mapboxgl.accessToken}`
-      ).then((res) => res.json());
+        const dropGeo = await fetch(
+          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+            ride.drop
+          )}.json?access_token=${mapboxgl.accessToken}`
+        ).then((res) => res.json());
 
-      if (!pickupGeo.features?.length || !dropGeo.features?.length) return;
+        if (!pickupGeo.features?.length || !dropGeo.features?.length) return;
 
-      const pickupCoords = pickupGeo.features[0].center;
-      const dropCoords = dropGeo.features[0].center;
+        const pickupCoords = pickupGeo.features[0].center;
+        const dropCoords = dropGeo.features[0].center;
 
-      const waypoint1 = driverPos ? driverPos.join(',') : pickupCoords.join(',');
-      const waypoint2 = pickupCoords.join(',');
-      const waypoint3 = dropCoords.join(',');
+        const waypoint1 = driverPos ? driverPos.join(',') : pickupCoords.join(',');
+        const waypoint2 = pickupCoords.join(',');
+        const waypoint3 = dropCoords.join(',');
 
-      const routeData = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${waypoint1};${waypoint2};${waypoint3}?geometries=geojson&access_token=${mapboxgl.accessToken}`
-      ).then((res) => res.json());
+        const routeData = await fetch(
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${waypoint1};${waypoint2};${waypoint3}?geometries=geojson&access_token=${mapboxgl.accessToken}`
+        ).then((res) => res.json());
 
-      if (!routeData.routes?.length) return;
+        if (!routeData.routes?.length) return;
+        const routeCoords = routeData.routes[0].geometry.coordinates;
 
-      const routeCoords = routeData.routes[0].geometry.coordinates;
-
-        mapRef.current = new mapboxgl.Map({
-          container: mapContainer.current,
-          style: "mapbox://styles/mapbox/streets-v12",
-          center: pickupCoords,
-          zoom: 12,
-        });
-
-        // Suppress missing image warnings
-        mapRef.current.on('styleimagemissing', () => {});
-      }
-
-      const map = mapRef.current;
-
-      const updateMapContent = () => {
-        if (map.getSource("route")) {
-          map.getSource("route").setData({
-            type: "Feature",
-            geometry: {
-              type: "LineString",
-              coordinates: routeCoords,
-            },
+        if (!mapRef.current) {
+          mapRef.current = new mapboxgl.Map({
+            container: mapContainer.current,
+            style: "mapbox://styles/mapbox/streets-v12",
+            center: pickupCoords,
+            zoom: 12,
           });
-        } else {
-          map.addSource("route", {
-            type: "geojson",
-            data: {
+
+          mapRef.current.on("styleimagemissing", () => {});
+        }
+
+        const map = mapRef.current;
+
+        const updateMapContent = () => {
+          if (map.getSource("route")) {
+            map.getSource("route").setData({
               type: "Feature",
               geometry: {
                 type: "LineString",
                 coordinates: routeCoords,
               },
-            },
-          });
+            });
+          } else {
+            map.addSource("route", {
+              type: "geojson",
+              data: {
+                type: "Feature",
+                geometry: {
+                  type: "LineString",
+                  coordinates: routeCoords,
+                },
+              },
+            });
 
-          map.addLayer({
-            id: "route",
-            type: "line",
-            source: "route",
-            layout: { "line-join": "round", "line-cap": "round" },
-            paint: {
-              "line-color": "#7b61ff",
-              "line-width": 6,
-            },
-          });
+            map.addLayer({
+              id: "route",
+              type: "line",
+              source: "route",
+              layout: { "line-join": "round", "line-cap": "round" },
+              paint: {
+                "line-color": "#7b61ff",
+                "line-width": 6,
+              },
+            });
+          }
+
+          // Custom Pickup Marker (Yellow)
+          const pEl = document.createElement("div");
+          pEl.className = "custom-marker pickup-marker";
+          pEl.innerHTML = '<div class="marker-label">Pickup</div><div class="marker-pin"></div>';
+          const m1 = new mapboxgl.Marker({ element: pEl, anchor: "bottom" })
+            .setLngLat(pickupCoords)
+            .addTo(map);
+
+          // Custom Drop Marker (Green)
+          const dEl = document.createElement("div");
+          dEl.className = "custom-marker drop-marker";
+          dEl.innerHTML = '<div class="marker-label">Drop</div><div class="marker-pin"></div>';
+          const m2 = new mapboxgl.Marker({ element: dEl, anchor: "bottom" })
+            .setLngLat(dropCoords)
+            .addTo(map);
+
+          markersRef.current = [m1, m2];
+
+          const bounds = new mapboxgl.LngLatBounds()
+            .extend(pickupCoords)
+            .extend(dropCoords);
+          if (driverPos) bounds.extend(driverPos);
+          map.fitBounds(bounds, { padding: 50 });
+        };
+
+        if (map.loaded()) {
+          updateMapContent();
+        } else {
+          map.on("load", updateMapContent);
         }
-
-        // Custom Pickup Marker (Yellow)
-        const pickupEl = document.createElement('div');
-        pickupEl.className = 'custom-marker pickup-marker';
-        pickupEl.innerHTML = `
-          <div class="marker-label">Pickup</div>
-          <div class="marker-pin"></div>
-        `;
-        
-        const m1 = new mapboxgl.Marker({ element: pickupEl, anchor: 'bottom' })
-          .setLngLat(pickupCoords)
-          .addTo(map);
-
-        // Custom Drop Marker (Green)
-        const dropEl = document.createElement('div');
-        dropEl.className = 'custom-marker drop-marker';
-        dropEl.innerHTML = `
-          <div class="marker-label">Drop</div>
-          <div class="marker-pin"></div>
-        `;
-
-        const m2 = new mapboxgl.Marker({ element: dropEl, anchor: 'bottom' })
-          .setLngLat(dropCoords)
-          .addTo(map);
-          
-        markersRef.current = [m1, m2];
-
-        // Zoom to show all
-        const bounds = new mapboxgl.LngLatBounds()
-          .extend(pickupCoords)
-          .extend(dropCoords);
-          
-        if (driverPos) bounds.extend(driverPos);
-        
-        map.fitBounds(bounds, { padding: 50 });
-      };
-
-      if (map.loaded()) {
-        updateMapContent();
-      } else {
-        map.on("load", updateMapContent);
+      } catch (err) {
+        console.error("Map loading error:", err);
       }
     };
 
     loadMap();
   }, [ride?.status, driverPos]);
 
-  if (!ride) return <div>Loading...</div>;
+  if (!ride) return <div className="loading">Loading ride details...</div>;
 
   return (
     <div className="track-page">
@@ -265,7 +258,6 @@ console.log("Ride data:", ride);
 
       <div className="ride-card">
         <h3>🚕 Ride Tracking</h3>
-
         <p><strong>Pickup:</strong> {ride.pickup}</p>
         <p><strong>Drop:</strong> {ride.drop}</p>
         <p><strong>Distance:</strong> {ride.distance} km</p>
@@ -275,35 +267,19 @@ console.log("Ride data:", ride);
         <p className="amount">₹ {ride.amount}</p>
       </div>
 
-      {/* DRIVER DETAILS */}
-     {ride.status === "ASSIGNED" && ride.driverName && (
-      
-   <div className="driver-card">
-
-    <div className="driver-left">
-      <h4>🚗 Driver Details</h4>
-      <p><strong>Name:</strong> {ride.driverName}</p>
-      <p><strong>Phone:</strong> {ride.driverPhone}</p>
-    </div>
-
-    <div className="driver-right">
-      <div className="driver-avatar">
-        {ride.driverName?.charAt(0).toUpperCase()}
-      </div>
-
-      <a
-        href={`tel:${ride.driverPhone}`}
-        className="call-btn"
-      >
-        📞 Call Driver
-      </a>
-    </div>
-
-  </div>
-)}
-
-
-
+      {ride.status === "ASSIGNED" && ride.driverName && (
+        <div className="driver-card">
+          <div className="driver-left">
+            <h4>🚗 Driver Details</h4>
+            <p><strong>Name:</strong> {ride.driverName}</p>
+            <p><strong>Phone:</strong> {ride.driverPhone}</p>
+          </div>
+          <div className="driver-right">
+            <div className="driver-avatar">{ride.driverName.charAt(0).toUpperCase()}</div>
+            <a href={`tel:${ride.driverPhone}`} className="call-btn">📞 Call Driver</a>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
