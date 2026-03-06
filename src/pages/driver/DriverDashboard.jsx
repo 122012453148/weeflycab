@@ -166,7 +166,6 @@ const handleCompleteRide = async () => {
     const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
     if (!activeRide || !mapContainer.current) return;
 
-    // Use cached or fresh location
     const driverLng = driverLoc?.[0] || 0;
     const driverLat = driverLoc?.[1] || 0;
 
@@ -177,105 +176,100 @@ const handleCompleteRide = async () => {
       return;
     }
 
-      try {
-        const geoPickup = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            activeRide.pickup
-          )}.json?access_token=${MAPBOX_TOKEN}`
-        ).then((res) => res.json());
+    try {
+      const geoPickup = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          activeRide.pickup
+        )}.json?access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
 
-        const geoDrop = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-            activeRide.drop
-          )}.json?access_token=${MAPBOX_TOKEN}`
-        ).then((res) => res.json());
+      const geoDrop = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          activeRide.drop
+        )}.json?access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
 
-        if (!geoPickup.features?.length || !geoDrop.features?.length) return;
-        const [pickupLng, pickupLat] = geoPickup.features[0].center;
-        const [dropLng, dropLat] = geoDrop.features[0].center;
+      if (!geoPickup.features?.length || !geoDrop.features?.length) return;
+      const [pickupLng, pickupLat] = geoPickup.features[0].center;
+      const [dropLng, dropLat] = geoDrop.features[0].center;
 
-        const destLng = activeRide.status === "ASSIGNED" ? pickupLng : dropLng;
-        const destLat = activeRide.status === "ASSIGNED" ? pickupLat : dropLat;
+      // Directions: Driver -> Pickup -> Drop
+      const directions = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${pickupLng},${pickupLat};${dropLng},${dropLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
 
-        const directions = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${pickupLng},${pickupLat};${dropLng},${dropLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
-        ).then((res) => res.json());
+      if (!directions.routes?.length) return;
+      const route = directions.routes[0].geometry;
 
-        if (!directions.routes?.length) return;
-        const route = directions.routes[0].geometry;
-
-        if (mapRef.current) mapRef.current.remove();
-
+      // Initialize map once
+      if (!mapRef.current) {
         mapRef.current = new mapboxgl.Map({
           container: mapContainer.current,
           style: "mapbox://styles/mapbox/streets-v12",
           center: [driverLng, driverLat],
-          zoom: 12,
+          zoom: 13,
         });
 
-        // Suppress missing image warnings (e.g. for road shields)
-        mapRef.current.on('styleimagemissing', (e) => {
-          console.warn(`Mapbox missing image: ${e.id}. Suppressing.`);
-        });
+        mapRef.current.on('styleimagemissing', (e) => {});
 
         mapRef.current.on("load", () => {
           mapRef.current.addSource("route", {
             type: "geojson",
-            data: {
-              type: "Feature",
-              geometry: route,
-            },
+            data: { type: "Feature", geometry: route },
           });
 
           mapRef.current.addLayer({
             id: "route",
             type: "line",
             source: "route",
-            paint: {
-              "line-color": "#7b61ff",
-              "line-width": 6,
-            },
+            paint: { "line-color": "#7b61ff", "line-width": 6 },
           });
 
-          // Driver Marker (Car icon)
-          const carEl = document.createElement('div');
-          carEl.className = 'driver-marker-car';
-          carEl.innerHTML = '🚗';
-          carEl.style.fontSize = '32px';
-
-          new mapboxgl.Marker({ element: carEl })
+          // Add Markers
+          const carEl = document.createElement("div");
+          carEl.className = "driver-marker-car";
+          carEl.innerHTML = "🚗";
+          mapRef.current.carMarker = new mapboxgl.Marker({ element: carEl })
             .setLngLat([driverLng, driverLat])
             .addTo(mapRef.current);
 
-          // Pickup Marker (Yellow)
-          const pEl = document.createElement('div');
-          pEl.className = 'custom-marker pickup-marker';
+          const pEl = document.createElement("div");
+          pEl.className = "custom-marker pickup-marker";
           pEl.innerHTML = '<div class="marker-label">Pickup</div><div class="marker-pin"></div>';
-          new mapboxgl.Marker({ element: pEl, anchor: 'bottom' })
+          new mapboxgl.Marker({ element: pEl, anchor: "bottom" })
             .setLngLat([pickupLng, pickupLat])
             .addTo(mapRef.current);
 
-          // Drop Marker (Green)
-          const dEl = document.createElement('div');
-          dEl.className = 'custom-marker drop-marker';
+          const dEl = document.createElement("div");
+          dEl.className = "custom-marker drop-marker";
           dEl.innerHTML = '<div class="marker-label">Drop</div><div class="marker-pin"></div>';
-          new mapboxgl.Marker({ element: dEl, anchor: 'bottom' })
+          new mapboxgl.Marker({ element: dEl, anchor: "bottom" })
             .setLngLat([dropLng, dropLat])
             .addTo(mapRef.current);
-            
+
           const bounds = new mapboxgl.LngLatBounds()
             .extend([driverLng, driverLat])
             .extend([pickupLng, pickupLat])
             .extend([dropLng, dropLat]);
           mapRef.current.fitBounds(bounds, { padding: 50 });
         });
-      } catch (err) {
-        console.error("Map update failed:", err);
+      } else {
+        // Update existing map
+        const map = mapRef.current;
+        if (map.getSource("route")) {
+          map.getSource("route").setData({ type: "Feature", geometry: route });
+        }
+        if (map.carMarker) {
+          map.carMarker.setLngLat([driverLng, driverLat]);
+        }
       }
+    } catch (err) {
+      console.error("Map update failed:", err);
+    }
   };
 
   useEffect(() => {
-    if (activeRide && (activeRide.status === "ASSIGNED" || activeRide.status === "ON_TRIP")) {
+    if (activeRide && activeRide.status === "ON_TRIP") {
       showRouteOnMap();
     }
   }, [activeRide?.status, driverLoc]);
@@ -336,17 +330,18 @@ const handleCompleteRide = async () => {
               <div className="active-ride">
                 <p><strong>Status:</strong> {activeRide.status}</p>
 
-                {/* Map always visible for active rides */}
-                <div
-                  ref={mapContainer}
-                  style={{
-                    width: "100%",
-                    height: "450px", // Increased map size
-                    marginTop: "15px",
-                    borderRadius: "15px",
-                    border: "2px solid rgba(255,255,255,0.1)"
-                  }}
-                />
+                {activeRide.status === "ON_TRIP" && (
+                  <div
+                    ref={mapContainer}
+                    style={{
+                      width: "100%",
+                      height: "450px",
+                      marginTop: "15px",
+                      borderRadius: "15px",
+                      border: "2px solid rgba(255,255,255,0.1)"
+                    }}
+                  />
+                )}
 
                 {activeRide.customerName && (
                   <div className="customer-details">
