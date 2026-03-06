@@ -8,6 +8,15 @@ import "mapbox-gl/dist/mapbox-gl.css";
 
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
+const calculateBearing = (start, end) => {
+  const [startLng, startLat] = start;
+  const [endLng, endLat] = end;
+  const y = Math.sin((endLng - startLng) * (Math.PI / 180)) * Math.cos(endLat * (Math.PI / 180));
+  const x = Math.cos(startLat * (Math.PI / 180)) * Math.sin(endLat * (Math.PI / 180)) -
+            Math.sin(startLat * (Math.PI / 180)) * Math.cos(endLat * (Math.PI / 180)) * Math.cos((endLng - startLng) * (Math.PI / 180));
+  return (Math.atan2(y, x) * (180 / Math.PI) + 360) % 360;
+};
+
 
 export default function RideTracking() {
   const navigate = useNavigate();
@@ -17,6 +26,8 @@ export default function RideTracking() {
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
   const driverMarkerRef = useRef(null);
+  const routeLayerRef = useRef(null);
+  const markersRef = useRef([]);
 
 
   /* ---------------- FETCH RIDE ---------------- */
@@ -74,15 +85,30 @@ export default function RideTracking() {
 
 socket.on("updateDriverLocation", (data) => {
   if (data.bookingId !== bookingId) return;
-
   if (!mapRef.current) return;
 
+  const newPos = [data.lng, data.lat];
+
   if (!driverMarkerRef.current) {
-    driverMarkerRef.current = new mapboxgl.Marker({ color: "#2A9D8F" })
-      .setLngLat([data.lng, data.lat])
+    const el = document.createElement('div');
+    el.className = 'driver-marker-car';
+    el.innerHTML = '🚗';
+    el.style.fontSize = '32px';
+    el.style.transition = 'all 1s linear'; 
+
+    driverMarkerRef.current = new mapboxgl.Marker(el)
+      .setLngLat(newPos)
       .addTo(mapRef.current);
+    
+    driverMarkerRef.current.prevPos = newPos;
   } else {
-    driverMarkerRef.current.setLngLat([data.lng, data.lat]);
+    const prevPos = driverMarkerRef.current.prevPos;
+    if (prevPos) {
+      const bearing = calculateBearing(prevPos, newPos);
+      driverMarkerRef.current.getElement().style.transform += ` rotate(${bearing}deg)`;
+    }
+    driverMarkerRef.current.setLngLat(newPos);
+    driverMarkerRef.current.prevPos = newPos;
   }
 });
 
@@ -102,6 +128,10 @@ console.log("Ride data:", ride);
     if (!ride || !mapContainer.current) return;
 
     const loadMap = async () => {
+      // Clear old markers
+      markersRef.current.forEach(m => m.remove());
+      markersRef.current = [];
+
       const pickupGeo = await fetch(
         `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
           ride.pickup
@@ -114,68 +144,102 @@ console.log("Ride data:", ride);
         )}.json?access_token=${mapboxgl.accessToken}`
       ).then((res) => res.json());
 
-      if (!pickupGeo.features.length || !dropGeo.features.length) return;
+      if (!pickupGeo.features?.length || !dropGeo.features?.length) return;
 
-      const pickup = pickupGeo.features[0].center;
-      const drop = dropGeo.features[0].center;
+      const pickupCoords = pickupGeo.features[0].center;
+      const dropCoords = dropGeo.features[0].center;
+
+      // Determine which route to show
+      let startCoords = pickupCoords;
+      let endCoords = dropCoords;
+
+      if (ride.status === "ASSIGNED") {
+        // If assigned, we might want to show route TO pickup later
+        // For now, let's keep showing the trip route but add markers properly
+      }
 
       const routeData = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${pickup.join(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords.join(
           ","
-        )};${drop.join(
+        )};${endCoords.join(
           ","
         )}?geometries=geojson&access_token=${mapboxgl.accessToken}`
       ).then((res) => res.json());
 
-      if (!routeData.routes.length) return;
+      if (!routeData.routes?.length) return;
 
       const routeCoords = routeData.routes[0].geometry.coordinates;
 
-      if (mapRef.current) mapRef.current.remove();
+      if (!mapRef.current) {
+        mapRef.current = new mapboxgl.Map({
+          container: mapContainer.current,
+          style: "mapbox://styles/mapbox/streets-v12",
+          center: pickupCoords,
+          zoom: 12,
+        });
+      }
 
-      const map = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: "mapbox://styles/mapbox/streets-v12",
-        center: pickup,
-        zoom: 10,
-      });
+      const map = mapRef.current;
 
-      mapRef.current = map;
-
-      map.on("load", () => {
-        map.addSource("route", {
-          type: "geojson",
-          data: {
+      const updateMapContent = () => {
+        if (map.getSource("route")) {
+          map.getSource("route").setData({
             type: "Feature",
             geometry: {
               type: "LineString",
               coordinates: routeCoords,
             },
-          },
-        });
+          });
+        } else {
+          map.addSource("route", {
+            type: "geojson",
+            data: {
+              type: "Feature",
+              geometry: {
+                type: "LineString",
+                coordinates: routeCoords,
+              },
+            },
+          });
 
-        map.addLayer({
-          id: "route",
-          type: "line",
-          source: "route",
-          paint: {
-            "line-color": "#2A9D8F",
-            "line-width": 5,
-          },
-        });
+          map.addLayer({
+            id: "route",
+            type: "line",
+            source: "route",
+            layout: { "line-join": "round", "line-cap": "round" },
+            paint: {
+              "line-color": "#7b61ff",
+              "line-width": 6,
+            },
+          });
+        }
 
-        new mapboxgl.Marker({ color: "green" })
-          .setLngLat(pickup)
+        const m1 = new mapboxgl.Marker({ color: "green" })
+          .setLngLat(pickupCoords)
           .addTo(map);
 
-        new mapboxgl.Marker({ color: "red" })
-          .setLngLat(drop)
+        const m2 = new mapboxgl.Marker({ color: "red" })
+          .setLngLat(dropCoords)
           .addTo(map);
-      });
+          
+        markersRef.current = [m1, m2];
+
+        // Zoom to show both
+        const bounds = new mapboxgl.LngLatBounds()
+          .extend(pickupCoords)
+          .extend(dropCoords);
+        map.fitBounds(bounds, { padding: 50 });
+      };
+
+      if (map.loaded()) {
+        updateMapContent();
+      } else {
+        map.on("load", updateMapContent);
+      }
     };
 
     loadMap();
-  }, [ride]);
+  }, [ride?.status]);
 
   if (!ride) return <div>Loading...</div>;
 

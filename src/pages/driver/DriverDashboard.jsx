@@ -37,20 +37,25 @@ export default function DriverDashboard() {
   }, []);
   
 useEffect(() => {
-  if (!activeRide || activeRide.status !== "ON_TRIP") return;
+  if (!activeRide || (activeRide.status !== "ASSIGNED" && activeRide.status !== "ON_TRIP")) return;
 
   const interval = setInterval(() => {
-    navigator.geolocation.getCurrentPosition((position) => {
-      socket.emit("driverLocation", {
-        bookingId: activeRide._id,
-        lat: position.coords.latitude,
-        lng: position.coords.longitude,
-      });
-    });
-  }, 5000); // every 5 sec
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        socket.emit("driverLocation", {
+          bookingId: activeRide._id,
+          lat: latitude,
+          lng: longitude,
+        });
+      },
+      (err) => console.error("Geolocation error:", err),
+      { enableHighAccuracy: true }
+    );
+  }, 3000); // every 3 sec for smoother tracking
 
   return () => clearInterval(interval);
-}, [activeRide]);
+}, [activeRide?._id, activeRide?.status]);
 
   /* ================= CONNECT SOCKET (🔥 IMPORTANT FIX) ================= */
   useEffect(() => {
@@ -123,8 +128,15 @@ useEffect(() => {
 
   /* ================= OTP VERIFY ================= */
   const handleVerifyOtp = () => {
-    if (enteredOtp === activeRide.otp) {
+    if (String(enteredOtp) === String(activeRide.otp)) {
       setActiveRide({ ...activeRide, status: "ON_TRIP" });
+      
+      // Notify server and customer
+      socket.emit("verifyOtp", { bookingId: activeRide._id });
+      
+      // Update DB status
+      api.put(`/bookings/${activeRide._id}/start`).catch(err => console.log("Start trip error:", err));
+      
       showRouteOnMap();
     } else {
       alert("Invalid OTP");
@@ -149,34 +161,38 @@ const handleCompleteRide = async () => {
   /* ================= MAP ROUTE ================= */
   const showRouteOnMap = async () => {
     const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+    if (!activeRide) return;
 
-    const geoPickup = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-        activeRide.pickup
-      )}.json?access_token=${MAPBOX_TOKEN}`
-    ).then((res) => res.json());
+    let destination = activeRide.status === "ASSIGNED" ? activeRide.pickup : activeRide.drop;
+    
+    // Get current driver location
+    navigator.geolocation.getCurrentPosition(async (pos) => {
+      const driverLng = pos.coords.longitude;
+      const driverLat = pos.coords.latitude;
 
-    const geoDrop = await fetch(
-      `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
-        activeRide.drop
-      )}.json?access_token=${MAPBOX_TOKEN}`
-    ).then((res) => res.json());
+      const geoDest = await fetch(
+        `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(
+          destination
+        )}.json?access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
 
-    const [pickupLng, pickupLat] = geoPickup.features[0].center;
-    const [dropLng, dropLat] = geoDrop.features[0].center;
+      if (!geoDest.features?.length) return;
+      const [destLng, destLat] = geoDest.features[0].center;
 
-    const directions = await fetch(
-      `https://api.mapbox.com/directions/v5/mapbox/driving/${pickupLng},${pickupLat};${dropLng},${dropLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
-    ).then((res) => res.json());
+      const directions = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${destLng},${destLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+      ).then((res) => res.json());
 
-    const route = directions.routes[0].geometry;
+      if (!directions.routes?.length) return;
+      const route = directions.routes[0].geometry;
 
-    if (!mapRef.current) {
+      if (mapRef.current) mapRef.current.remove();
+
       mapRef.current = new mapboxgl.Map({
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/streets-v11",
-        center: [pickupLng, pickupLat],
-        zoom: 7,
+        center: [driverLng, driverLat],
+        zoom: 12,
       });
 
       mapRef.current.on("load", () => {
@@ -193,21 +209,39 @@ const handleCompleteRide = async () => {
           type: "line",
           source: "route",
           paint: {
-            "line-color": "#2A9D8F",
-            "line-width": 5,
+            "line-color": "#7b61ff",
+            "line-width": 6,
           },
         });
 
-        new mapboxgl.Marker({ color: "green" })
-          .setLngLat([pickupLng, pickupLat])
+        // Driver Marker (Car icon)
+        const el = document.createElement('div');
+        el.className = 'driver-marker-car';
+        el.innerHTML = '🚗';
+        el.style.fontSize = '24px';
+
+        new mapboxgl.Marker(el)
+          .setLngLat([driverLng, driverLat])
           .addTo(mapRef.current);
 
-        new mapboxgl.Marker({ color: "red" })
-          .setLngLat([dropLng, dropLat])
+        new mapboxgl.Marker({ color: activeRide.status === "ASSIGNED" ? "green" : "red" })
+          .setLngLat([destLng, destLat])
           .addTo(mapRef.current);
+          
+        // Fit bounds
+        const bounds = new mapboxgl.LngLatBounds()
+          .extend([driverLng, driverLat])
+          .extend([destLng, destLat]);
+        mapRef.current.fitBounds(bounds, { padding: 50 });
       });
-    }
+    });
   };
+
+  useEffect(() => {
+    if (activeRide && (activeRide.status === "ASSIGNED" || activeRide.status === "ON_TRIP")) {
+      showRouteOnMap();
+    }
+  }, [activeRide?.status]);
 
   return (
     <>
