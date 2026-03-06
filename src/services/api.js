@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+const API_BASE_URL = (import.meta.env.VITE_API_URL || "http://localhost:5000").trim();
 
 const API = axios.create({
   baseURL: `${API_BASE_URL}/api`,
@@ -24,7 +24,7 @@ export const loginUser = (data) =>
 
 export const getDistance = async (origin, destination) => {
   try {
-    const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+    const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN?.trim();
 
     if (!MAPBOX_TOKEN) {
       throw new Error("Mapbox token missing");
@@ -101,7 +101,7 @@ export const getDistance = async (origin, destination) => {
 
 export const searchPlaces = async (query) => {
   try {
-    const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
+    const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN?.trim();
 
     const response = await axios.get(
       `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(query)}.json`,
