@@ -20,7 +20,7 @@
 .track-page > div:first-child {
   width: 90%;
   max-width: 900px;
-  height: 350px;
+  height: 450px; /* Increased map size */
 
   border-radius: 20px;
   overflow: hidden;

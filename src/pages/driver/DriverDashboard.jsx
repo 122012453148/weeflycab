@@ -25,6 +25,7 @@ export default function DriverDashboard() {
 
   const mapContainer = useRef(null);
   const mapRef = useRef(null);
+  const [driverLoc, setDriverLoc] = useState(null);
 
 
   
@@ -44,6 +45,7 @@ useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         const { latitude, longitude } = position.coords;
+        setDriverLoc([longitude, latitude]);
         socket.emit("driverLocation", {
           bookingId: activeRide._id,
           lat: latitude,
@@ -164,10 +166,16 @@ const handleCompleteRide = async () => {
     const MAPBOX_TOKEN = import.meta.env.VITE_MAPBOX_TOKEN;
     if (!activeRide || !mapContainer.current) return;
 
-    // Get current driver location
-    navigator.geolocation.getCurrentPosition(async (pos) => {
-      const driverLng = pos.coords.longitude;
-      const driverLat = pos.coords.latitude;
+    // Use cached or fresh location
+    const driverLng = driverLoc?.[0] || 0;
+    const driverLat = driverLoc?.[1] || 0;
+
+    if (!driverLng) {
+      navigator.geolocation.getCurrentPosition(async (pos) => {
+        setDriverLoc([pos.coords.longitude, pos.coords.latitude]);
+      });
+      return;
+    }
 
       try {
         const geoPickup = await fetch(
@@ -190,7 +198,7 @@ const handleCompleteRide = async () => {
         const destLat = activeRide.status === "ASSIGNED" ? pickupLat : dropLat;
 
         const directions = await fetch(
-          `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${destLng},${destLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
+          `https://api.mapbox.com/directions/v5/mapbox/driving/${driverLng},${driverLat};${pickupLng},${pickupLat};${dropLng},${dropLat}?geometries=geojson&access_token=${MAPBOX_TOKEN}`
         ).then((res) => res.json());
 
         if (!directions.routes?.length) return;
@@ -259,14 +267,13 @@ const handleCompleteRide = async () => {
       } catch (err) {
         console.error("Map update failed:", err);
       }
-    });
   };
 
   useEffect(() => {
     if (activeRide && (activeRide.status === "ASSIGNED" || activeRide.status === "ON_TRIP")) {
       showRouteOnMap();
     }
-  }, [activeRide?.status]);
+  }, [activeRide?.status, driverLoc]);
 
   return (
     <>
@@ -329,7 +336,7 @@ const handleCompleteRide = async () => {
                   ref={mapContainer}
                   style={{
                     width: "100%",
-                    height: "300px",
+                    height: "450px", // Increased map size
                     marginTop: "15px",
                     borderRadius: "15px",
                     border: "2px solid rgba(255,255,255,0.1)"

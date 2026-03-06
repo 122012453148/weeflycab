@@ -28,6 +28,7 @@ export default function RideTracking() {
   const driverMarkerRef = useRef(null);
   const routeLayerRef = useRef(null);
   const markersRef = useRef([]);
+  const [driverPos, setDriverPos] = useState(null);
 
 
   /* ---------------- FETCH RIDE ---------------- */
@@ -75,42 +76,45 @@ export default function RideTracking() {
     }
   });
 
+  socket.on("updateDriverLocation", (data) => {
+    if (data.bookingId !== bookingId) return;
+    if (!mapRef.current) return;
+
+    const newPos = [data.lng, data.lat];
+    setDriverPos(newPos);
+
+    if (!driverMarkerRef.current) {
+      const el = document.createElement("div");
+      el.className = "driver-marker-car";
+      el.innerHTML = "🚗";
+      el.style.fontSize = "36px";
+      el.style.transition = "all 1s linear";
+
+      driverMarkerRef.current = new mapboxgl.Marker({ element: el })
+        .setLngLat(newPos)
+        .addTo(mapRef.current);
+
+      driverMarkerRef.current.prevPos = newPos;
+    } else {
+      const prevPos = driverMarkerRef.current.prevPos;
+      if (prevPos) {
+        const bearing = calculateBearing(prevPos, newPos);
+        driverMarkerRef.current.getElement().style.transform = `rotate(${bearing}deg)`;
+      }
+      driverMarkerRef.current.setLngLat(newPos);
+      driverMarkerRef.current.prevPos = newPos;
+    }
+  });
+
   return () => {
     socket.off("rideAccepted");
     socket.off("rideStarted");
     socket.off("rideCompleted");
+    socket.off("updateDriverLocation");
   };
 }, [bookingId]);
 
 
-socket.on("updateDriverLocation", (data) => {
-  if (data.bookingId !== bookingId) return;
-  if (!mapRef.current) return;
-
-  const newPos = [data.lng, data.lat];
-
-  if (!driverMarkerRef.current) {
-    const el = document.createElement('div');
-    el.className = 'driver-marker-car';
-    el.innerHTML = '🚗';
-    el.style.fontSize = '32px';
-    el.style.transition = 'all 1s linear'; 
-
-    driverMarkerRef.current = new mapboxgl.Marker(el)
-      .setLngLat(newPos)
-      .addTo(mapRef.current);
-    
-    driverMarkerRef.current.prevPos = newPos;
-  } else {
-    const prevPos = driverMarkerRef.current.prevPos;
-    if (prevPos) {
-      const bearing = calculateBearing(prevPos, newPos);
-      driverMarkerRef.current.getElement().style.transform += ` rotate(${bearing}deg)`;
-    }
-    driverMarkerRef.current.setLngLat(newPos);
-    driverMarkerRef.current.prevPos = newPos;
-  }
-});
 
 
   /* ---------------- AUTO REFRESH WHEN ASSIGNED ---------------- */
@@ -149,21 +153,12 @@ console.log("Ride data:", ride);
       const pickupCoords = pickupGeo.features[0].center;
       const dropCoords = dropGeo.features[0].center;
 
-      // Determine which route to show
-      let startCoords = pickupCoords;
-      let endCoords = dropCoords;
-
-      if (ride.status === "ASSIGNED") {
-        // If assigned, we might want to show route TO pickup later
-        // For now, let's keep showing the trip route but add markers properly
-      }
+      const waypoint1 = driverPos ? driverPos.join(',') : pickupCoords.join(',');
+      const waypoint2 = pickupCoords.join(',');
+      const waypoint3 = dropCoords.join(',');
 
       const routeData = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/driving/${startCoords.join(
-          ","
-        )};${endCoords.join(
-          ","
-        )}?geometries=geojson&access_token=${mapboxgl.accessToken}`
+        `https://api.mapbox.com/directions/v5/mapbox/driving/${waypoint1};${waypoint2};${waypoint3}?geometries=geojson&access_token=${mapboxgl.accessToken}`
       ).then((res) => res.json());
 
       if (!routeData.routes?.length) return;
@@ -240,10 +235,13 @@ console.log("Ride data:", ride);
           
         markersRef.current = [m1, m2];
 
-        // Zoom to show both
+        // Zoom to show all
         const bounds = new mapboxgl.LngLatBounds()
           .extend(pickupCoords)
           .extend(dropCoords);
+          
+        if (driverPos) bounds.extend(driverPos);
+        
         map.fitBounds(bounds, { padding: 50 });
       };
 
@@ -255,7 +253,7 @@ console.log("Ride data:", ride);
     };
 
     loadMap();
-  }, [ride?.status]);
+  }, [ride?.status, driverPos]);
 
   if (!ride) return <div>Loading...</div>;
 
